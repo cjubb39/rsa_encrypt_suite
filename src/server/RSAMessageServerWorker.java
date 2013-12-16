@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 import rsaEncrypt.KeyPair;
 import rsaEncrypt.MakeKeys;
-import shared.Message;
+import shared.RSAMessage;
 import shared.ServerAckMessage;
 import shared.ServerMessage;
 import shared.User;
@@ -128,8 +128,8 @@ public class RSAMessageServerWorker implements Runnable {
 
 			//verifying identity with test
 			KeyPair kp = MakeKeys.generateKeys();	
-			Message test = new Message(new BigInteger(kp.getPub().getGroupSize().bitLength()/8, this.rng).toByteArray(), true);
-			Message testMes = test.encryptMessage(readIn.getPubKey());
+			RSAMessage test = new RSAMessage(new BigInteger(kp.getPub().getGroupSize().bitLength()/8, this.rng).toByteArray(), true);
+			RSAMessage testMes = test.encryptMessage(readIn.getPubKey());
 		
 			// send public key
 			shared.Utilities.sendData(shared.Utilities.serializeToByteArray(kp.getPub()), this.client.getOutputStream());
@@ -143,7 +143,7 @@ public class RSAMessageServerWorker implements Runnable {
 			// read response
 			byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
 			
-			Message retMessage = new Message(messageIn).decryptMessage(kp.getPriv());
+			RSAMessage retMessage = new RSAMessage(messageIn).decryptMessage(kp.getPriv());
 			BigInteger returned = new BigInteger(retMessage.getMessage());
 
 			if(returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)){

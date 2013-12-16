@@ -16,7 +16,7 @@ import java.util.Random;
  */
 public class MakeKeys {
 
-	public static final int lowPrimeBitLength = 1500;
+	public static final int lowPrimeBitLength = 250;
 	public static final int highPrimeBitLength = 2000;
 	public static final Random rnd = new Random(System.currentTimeMillis());
 

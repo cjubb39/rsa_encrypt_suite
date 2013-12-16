@@ -13,7 +13,7 @@ import rsaEncrypt.KeyFile;
  * @version 1.0
  *
  */
-public class Message {
+public class RSAMessage {
 
 	//public static final int chunkSize = 8;
 	public static final String charSet = "UTF-8";
@@ -26,9 +26,9 @@ public class Message {
 	/**
 	 * Constructors 
 	 * @param in Byte array to wrap
-	 * @param align True causes byte array to be multiple of {@link Message.readChunkSize}.
+	 * @param align True causes byte array to be multiple of {@link RSAMessage.readChunkSize}.
 	 */
-	public Message(byte[] in, boolean align){
+	public RSAMessage(byte[] in, boolean align){
 		this.message = in;
 		
 		if (align) {
@@ -43,19 +43,19 @@ public class Message {
 		this.rng = new Random(System.nanoTime());
 	}
 	
-	public Message(String in, boolean align){
+	public RSAMessage(String in, boolean align){
 		this(in.getBytes(), false);
 	}
 	
-	public Message(String in){
+	public RSAMessage(String in){
 		this(in.getBytes());
 	}
 	
-	public Message(){
+	public RSAMessage(){
 		this("");
 	}
 	
-	public Message(byte[] in){
+	public RSAMessage(byte[] in){
 		this(in, false);
 	}
 	
@@ -64,8 +64,8 @@ public class Message {
 	 * @param key Public key to use for encryption
 	 * @return Encrypted Message
 	 */
-	public Message encryptMessage(KeyFile key){
-		int count = 0, bytesWritten = 0; byte readChunkSizeLocal = Message.readChunkSize;
+	public RSAMessage encryptMessage(KeyFile key){
+		int count = 0, bytesWritten = 0; byte readChunkSizeLocal = RSAMessage.readChunkSize;
 		ByteBuffer output = ByteBuffer.allocate(MAX_MESSAGE_SIZE); 
 		
 		if (this.message.length < readChunkSizeLocal){
@@ -95,11 +95,11 @@ public class Message {
 		}	
 		
 		// shrink byte array as necessary
-		Message toRet = new Message(Arrays.copyOfRange(output.array(), 0, bytesWritten));
+		RSAMessage toRet = new RSAMessage(Arrays.copyOfRange(output.array(), 0, bytesWritten));
 		return toRet;
 	}
 	
-	public Message decryptMessage(KeyFile key){
+	public RSAMessage decryptMessage(KeyFile key){
 		int bytesWritten = 0;
 		ByteBuffer output = ByteBuffer.allocate(MAX_MESSAGE_SIZE); 
 		ByteBuffer input = ByteBuffer.wrap(this.message);
@@ -152,7 +152,7 @@ public class Message {
 			bytesWritten += readChunkSize;
 		}
 
-		Message toRet = new Message(Arrays.copyOfRange(output.array(), 0, bytesWritten));
+		RSAMessage toRet = new RSAMessage(Arrays.copyOfRange(output.array(), 0, bytesWritten));
 		return toRet;
 	}
 	

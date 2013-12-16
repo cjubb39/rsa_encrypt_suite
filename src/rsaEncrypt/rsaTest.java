@@ -14,7 +14,7 @@ public class rsaTest {
 				kp.getPub().getKey(), 
 				kp.getPriv().getKey());
 		
-		Message m = new Message("{}[]Hello world.  Scott Disick.  Testing, testing, testing. ()-=", true), enc, dec;
+		RSAMessage m = new RSAMessage("{}[]Hello world.  Scott Disick.  Testing, testing, testing. ()-=", true), enc, dec;
 		//Message m = new Message("Hello world. This is a sentence.  The quick brown fox jumps over the lazy dog."), enc, dec;
 		enc = m.encryptMessage(kp.getPub());
 		//System.out.println("INT enc: " + enc.toString());
