@@ -1,5 +1,6 @@
 package server;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,8 +33,10 @@ public class RSAMessageServer {
 	
 	private LinkedBlockingDeque<ServerMessage> messageQueue;
 	private ArrayList<User> users;
-	public static final String dataPath = "./data/RSAmsData";
-	public static final String userPath = "./data/RSAmsUser";
+	public static final File savePath = new File("./data/server/");
+	public static final File dataPath = new File("./data/server/RSAmsData.dat");
+	public static final File userPath = new File("./data/server/RSAmsUser.dat");
+	private ThreadGroup connections;
 	
 	private long maxSubThreads = 50;
 	public static final long saveStateDelayMilli = 1000*60*15; //15 minutes
@@ -45,7 +48,16 @@ public class RSAMessageServer {
 	 *           Port on which to start server
 	 */
 	public RSAMessageServer(int port) {
-
+		// add interrupt catch
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			public void run(){
+					System.err.println("EMERGENCY SAVE"); saveState(); closeConnections();
+				}
+			}
+		);
+		
+		this.connections = new ThreadGroup("Connections");
+		
 		try {
 			this.serveSocket = new ServerSocket(port);
 
@@ -81,7 +93,6 @@ public class RSAMessageServer {
 			e.printStackTrace();
 
 		} finally {
-			System.err.println("Save State hit");
 			this.saveState();
 			this.closeConnections();
 		}
@@ -92,18 +103,25 @@ public class RSAMessageServer {
 	 */
 	protected void saveState(){
 		try {
-			FileOutputStream dataOut = new FileOutputStream(RSAMessageServer.dataPath);
-			FileOutputStream userOut = new FileOutputStream(RSAMessageServer.userPath);
-			ObjectOutputStream dout = new ObjectOutputStream(dataOut);
-			ObjectOutputStream uout = new ObjectOutputStream(userOut);
+			if (this.messageQueue != null){
+				RSAMessageServer.savePath.mkdirs();
+				FileOutputStream dataOut = new FileOutputStream(RSAMessageServer.dataPath);
+				ObjectOutputStream dout = new ObjectOutputStream(dataOut);
+				dout.writeObject(this.messageQueue);
+				dout.close();
+				dataOut.close();
+			}
 			
-			dout.writeObject(this.messageQueue);
-			uout.writeObject(this.users);
-			dout.close();
-			uout.close();
+			if (this.users != null){
+				RSAMessageServer.savePath.mkdirs();
+				FileOutputStream userOut = new FileOutputStream(RSAMessageServer.userPath);
+				ObjectOutputStream uout = new ObjectOutputStream(userOut);
+				uout.writeObject(this.users);
+				uout.close();
+				userOut.close();
+			}
+			System.out.println("State saved");
 			
-			dataOut.close();
-			userOut.close();
 		} catch (IOException e){
 			e.printStackTrace();
 		}
@@ -185,12 +203,10 @@ public class RSAMessageServer {
 	 * thread controlling that connection is started.
 	 */
 	public void waitForConnect() {
-		ThreadGroup connections = new ThreadGroup("Connections");
-		
-		while (connections.activeCount() < this.maxSubThreads) {
+		while (this.connections.activeCount() < this.maxSubThreads) {
 			try {	
 				// start connection
-				new Thread(connections, new RSAMessageServerWorker(this.serveSocket.accept(), this)).start();
+				new Thread(this.connections, new RSAMessageServerWorker(this.serveSocket.accept(), this)).start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -132,7 +132,7 @@ public class RSAMessageServerWorker implements Runnable {
 			Message testMes = test.encryptMessage(readIn.getPubKey());
 		
 			// send public key
-			shared.Utilities.sendData(shared.Utilities.serialize(kp.getPub()), this.client.getOutputStream());
+			shared.Utilities.sendData(shared.Utilities.serializeToByteArray(kp.getPub()), this.client.getOutputStream());
 		
 			//recieve ack that first part received
 			this.in.next();
@@ -195,7 +195,7 @@ public class RSAMessageServerWorker implements Runnable {
 		byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
 		ServerMessage newMessage = null;
 		try {
-			newMessage = (ServerMessage) Utilities.deserialize(messageIn);
+			newMessage = (ServerMessage) Utilities.deserializeFromByteArray(messageIn);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -230,7 +230,7 @@ public class RSAMessageServerWorker implements Runnable {
 		this.in.next(); // get acknowledgment
 		
 		//send messages
-		shared.Utilities.sendData(shared.Utilities.serialize(toRet), this.client.getOutputStream());
+		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(toRet), this.client.getOutputStream());
 	}
 	
 	/**
@@ -245,7 +245,7 @@ public class RSAMessageServerWorker implements Runnable {
 		byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
 		
 		try {
-			curUser = (User) Utilities.deserialize(messageIn);
+			curUser = (User) Utilities.deserializeFromByteArray(messageIn);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			return null;

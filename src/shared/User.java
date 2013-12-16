@@ -5,8 +5,9 @@ import java.io.Serializable;
 
 public class User implements Serializable{
 	
+	private static final long serialVersionUID = 5125505408275243663L;
+	public final String firstName, lastName;
 	public final long ID;
-	private String firstName, lastName;
 	private KeyFile pubKey;
 	
 	public User(String firstName, String lastName, KeyFile pubKey){
@@ -17,7 +18,11 @@ public class User implements Serializable{
 	}
 	
 	public User(String fullName, KeyFile pubKey){
-		this(fullName.split(" ")[0], fullName.split(" ")[1], pubKey);
+		this(fullName.split(" ")[0], (fullName.split(" ").length > 1) ? fullName.split(" ")[1] : " ", pubKey);
+	}
+	
+	public String toString(){
+		return this.getFirstName() + " " + this.getLastName();
 	}
 
 	/**
@@ -28,24 +33,10 @@ public class User implements Serializable{
 	}
 
 	/**
-	 * @param firstName the firstName to set
-	 */
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	/**
 	 * @return the lastName
 	 */
 	public String getLastName() {
 		return lastName;
-	}
-
-	/**
-	 * @param lastName the lastName to set
-	 */
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
 	}
 
 	/**

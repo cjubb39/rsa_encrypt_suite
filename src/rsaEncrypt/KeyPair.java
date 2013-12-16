@@ -1,7 +1,6 @@
 package rsaEncrypt;
 
-public class KeyPair {
-
+public class KeyPair implements java.io.Serializable {
 	private final KeyFile pub;
 	private final KeyFile priv;
 	

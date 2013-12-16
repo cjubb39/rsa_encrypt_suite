@@ -2,6 +2,9 @@ package shared;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -17,14 +20,32 @@ import java.nio.ByteBuffer;
  */
 public final class Utilities {
 
-	public static byte[] serialize(Object obj) throws IOException {
+	public static void serializeToFile(Object obj, File file) throws IOException{
+		FileOutputStream fileOut = new FileOutputStream(file);
+		ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		out.writeObject(obj);
+		out.close();
+		fileOut.close();
+	}
+	
+	public static Object deserializeFromFile(File file) throws IOException, ClassNotFoundException{
+		FileInputStream fileIn = new FileInputStream(file);
+		ObjectInputStream in = new ObjectInputStream(fileIn);
+		Object toRet = in.readObject();
+		in.close();
+		fileIn.close();
+		
+		return toRet;
+	}
+	
+	public static byte[] serializeToByteArray(Object obj) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ObjectOutputStream os = new ObjectOutputStream(out);
 		os.writeObject(obj);
 		return out.toByteArray();
 	}
 
-	public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+	public static Object deserializeFromByteArray(byte[] data) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream in = new ByteArrayInputStream(data);
 		ObjectInputStream is = new ObjectInputStream(in);
 		return is.readObject();

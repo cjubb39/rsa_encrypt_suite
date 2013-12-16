@@ -23,4 +23,9 @@ public class KeyFile implements java.io.Serializable {
 	public BigInteger getKey(){
 		return this.key;
 	}
+	
+	//TODO MAKE BETTER HASH FUNCTION
+	public int hashCode(){
+		return Math.abs(this.key.xor(this.groupSize).hashCode());
+	}
 }
