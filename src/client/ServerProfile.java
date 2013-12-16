@@ -1,8 +1,11 @@
 package client;
 
-public class ServerProfile implements java.io.Serializable{
+import shared.TableData;
+
+public class ServerProfile implements TableData, java.io.Serializable{
 
 	private static final long serialVersionUID = 2460806966800521724L;
+	public boolean delete;
 	public String nickname, hostname;
 	public int port;
 	
@@ -38,5 +41,15 @@ public class ServerProfile implements java.io.Serializable{
 	 */
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	@Override
+	public boolean getDelete() {
+		return this.delete;
+	}
+
+	@Override
+	public void setDelete(boolean in) {
+		this.delete = in;
 	}
 }

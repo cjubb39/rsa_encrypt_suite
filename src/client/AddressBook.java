@@ -60,25 +60,13 @@ public class AddressBook extends ListManager<User>{
 				finished = true;
 			}
 		}
-		
 		this.keyFileLocation = null; //clear out
-		
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
 		
 		return this.getData();
 	}
 	
 	public ArrayList<User> addOne(User in){
-		this.getData().add(in);
-		
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
-		
+		this.getData().add(in);		
 		return this.getData();
 	}
 	
@@ -97,9 +85,11 @@ public class AddressBook extends ListManager<User>{
 			this.getGUI().dispose();
 		} else if (e.getSource().equals(this.getViewAddButton())){
 			this.addOne();
-			this.repaintTable();
+			this.resetTable();
 		} else if (e.getSource().equals(this.addOpenButton)){
 			this.getKeyFile();
+		} else if (e.getSource().equals(this.getDeleteButton())){
+			this.deleteSelected();
 		}
 	}
 }

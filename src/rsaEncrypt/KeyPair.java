@@ -1,6 +1,8 @@
 package rsaEncrypt;
 
 public class KeyPair implements java.io.Serializable {
+
+	private static final long serialVersionUID = 2233823812786898088L;
 	private final KeyFile pub;
 	private final KeyFile priv;
 	

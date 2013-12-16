@@ -12,6 +12,7 @@ import javax.swing.JTable;
 public class InboxController extends ListManager<InboxMessage> {
 
 	private JPanel panel;
+	private JButton deleteSelected;
 	
 	public InboxController(ArrayList<InboxMessage> messages, JPanel panel){
 		super(messages);
@@ -21,14 +22,13 @@ public class InboxController extends ListManager<InboxMessage> {
 	}
 	
 	@Override
-	public ArrayList<InboxMessage> viewAll(){
-		// ready given panel
-		//this.panel.setLayout(new BorderLayout(0,0));
-		
+	public ArrayList<InboxMessage> viewAll(){		
 		// create control panel
 		JPanel controlPanel = new JPanel();
-		JButton tempButton = new JButton("Real Action");
-		controlPanel.add(tempButton);
+		this.deleteSelected = new JButton("Delete Selected");
+		controlPanel.add(this.deleteSelected);
+		this.deleteSelected.addActionListener(this);
+		
 		this.panel.add(controlPanel, BorderLayout.NORTH);
 		
 		this.dataTable = new JTable(this.tableModel);
@@ -43,29 +43,20 @@ public class InboxController extends ListManager<InboxMessage> {
 	@Override
 	//TODO load message from file into inbox
 	public ArrayList<InboxMessage> addOne() {
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
-		this.repaintTable();
+		this.resetTable();
 		return this.getData();
 	}
 	
 	public ArrayList<InboxMessage> addOne(InboxMessage in){
 		this.getData().add(in);
-		
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
-		this.repaintTable();
+		this.resetTable();
 		return this.getData();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-
+		if (e.getSource().equals(this.deleteSelected)){
+			this.deleteSelected();
+		}
 	}
-
 }

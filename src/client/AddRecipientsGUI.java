@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,19 +23,19 @@ public class AddRecipientsGUI implements ActionListener{
 	private ArrayList<User> userData;
 	private ClientMessage message;
 	private AddressBook addressBook;
-	private JTextField text;
+	private JLabel text;
 	
 	private JList addRecipList;
 	private JDialog addRecip;
 	private JButton cancelButton;
 	private JButton setButton;
 	
-	public AddRecipientsGUI(AddressBook addressBook, ClientMessage message, JTextField text) {
+	public AddRecipientsGUI(AddressBook addressBook, ClientMessage message, JLabel text) {
 		this.addressBook = addressBook;
 		this.message = message;
 		this.strData = this.addressBook.getDataStringArray();
 		this.userData = this.addressBook.getData();
-		this.text = (text == null) ? new JTextField() : text;
+		this.text = (text == null) ? new JLabel() : text;
 		
 		this.initGUI();
 	}

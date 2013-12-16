@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import shared.User;
-
 public class ServerList extends ListManager<ServerProfile> {
 
 	public ServerList(ArrayList<ServerProfile> data) {
@@ -44,21 +42,12 @@ public class ServerList extends ListManager<ServerProfile> {
 				finished = true;
 			}
 		}
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
+		
 		return this.getData();
 	}
 	
 	public ArrayList<ServerProfile> addOne(ServerProfile in){
-		this.getData().add(in);
-		
-		// we want to make sure Table manager has correct field names
-		if (this.getData().size() > 0){
-			this.tableModel.updateFields();
-		}
-		
+		this.getData().add(in);		
 		return this.getData();
 	}
 
@@ -68,8 +57,10 @@ public class ServerList extends ListManager<ServerProfile> {
 			this.getGUI().dispose();
 		} else if (e.getSource().equals(this.getViewAddButton())){
 			this.addOne();
-			this.repaintTable();
-		} 
+			this.resetTable();
+		}  else if (e.getSource().equals(this.getDeleteButton())){
+			this.deleteSelected();
+		}
 	}
 
 }

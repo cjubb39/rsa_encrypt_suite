@@ -36,18 +36,18 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 	public void updateManagers(){
 		if(this.gui.getActiveProfile().getAddressBook() != this.contactManager.getData()){
 			this.contactManager = new AddressBook(this.gui.getActiveProfile().getAddressBook());
-			this.contactManager.tableModel.updateFields();
 		}
 		
 		if(this.gui.getActiveProfile().getServers() != this.serverManager.getData()){
 			this.serverManager = new ServerList(this.gui.getActiveProfile().getServers());
-			this.serverManager.tableModel.updateFields();
 		}
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		JTextArea messageArea = this.gui.getMessageArea();
+		
+		this.updateManagers();
 		
 		if (arg0.getSource().equals(this.gui.getClearButton())){
 			this.clearMessage(messageArea);
@@ -60,8 +60,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 		} else if (arg0.getSource().equals(this.gui.getViewContacts())){
 			this.contactManager.viewAll();
 		} else if (arg0.getSource().equals(this.gui.getAddServer())){
-			this.serverManager.addOne();
-			this.updateServerInfo();
+			this.updateServerInfo(this.serverManager.addOne());
 		} else if (arg0.getSource().equals(this.gui.getViewServers())){
 			this.serverManager.viewAll();
 		} else if (arg0.getSource().equals(this.gui.getExportPublicKey())){
@@ -82,11 +81,9 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 		} else if (arg0.getSource().equals(this.gui.getAddRecipientButton())){
 			this.addRecipientToCurrentMessage();
 		}
-		/***********************************************/
 		else if(arg0.getSource().equals(this.gui.getReceiveMessagesButton())){
 			this.receiveMessages();
 		}
-		/************************************************/
 
 	}
 	
@@ -94,9 +91,9 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 		new AddRecipientsGUI(this.contactManager, this.gui.getCurrentMessage(), this.gui.getTxtRecipient());
 	}
 	
-	private void updateServerInfo(){
-System.out.println("update server");
-		this.gui.setActiveServer(this.gui.getActiveProfile().getServers().get(0));
+	private void updateServerInfo(ArrayList<ServerProfile> sp){
+System.out.println("update server" + sp.get(sp.size() - 1).toString() + " H" + sp.toString()+"H");
+		this.gui.setActiveServer(sp.get(sp.size() - 1));
 	}
 	
 	private void updateAddressBookInfo(){
@@ -166,6 +163,7 @@ System.out.println("update server");
 	private void resetCompose(){
 		this.gui.resetCurrentMessage();
 		this.gui.getMessageArea().setText("");
+		this.gui.getTxtRecipient().setText("Recipient: ");
 	}
 	
 	private void exportKey(KeyFile kf, String fileName){

@@ -24,8 +24,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTable;
 
-import rsaEncrypt.MakeKeys;
-import shared.User;
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
 
@@ -33,7 +31,7 @@ public class RSAEncryptGUI {
 
 	private RSAEncryptGUIController controller;
 	private JFrame mainGUI;
-	private JTextField txtRecipient;
+	private JLabel txtRecipient;
 	private JTable emailTable;
 	private JButton btnSend, btnClear;
 	private JTextArea messageArea;
@@ -68,7 +66,7 @@ public class RSAEncryptGUI {
 		this.controller = new RSAEncryptGUIController(this);
 		this.initGUI();
 		
-		this.getActiveProfile().getAddressBook().add(new User("Friend", "Uno", MakeKeys.generateKeys().getPub()));
+		//this.getActiveProfile().getAddressBook().add(new User("Friend", "Uno", MakeKeys.generateKeys().getPub()));
 		this.controller.updateManagers();
 		
 		this.currentMessage = new ClientMessage(this.getActiveProfile().getMe());
@@ -98,9 +96,6 @@ public class RSAEncryptGUI {
 		this.inboxPanel.add(this.lblGreeting, BorderLayout.NORTH);
 		this.lblGreeting.setText("Hello, " + this.profiles.get(0).getMe().getFirstName() + "!");
 		
-		//this.emailTable = new JTable(new ListManagerTableMod<InboxMessage>(this.getActiveProfile().getMessages()));
-		//this.inboxPanel.add(this.emailTable, BorderLayout.CENTER);
-		
 		// create compose panel
 		JPanel composePanel = new JPanel();
 		tabbedPane.addTab("Compose Message", null, composePanel, null);
@@ -111,10 +106,10 @@ public class RSAEncryptGUI {
 		composePanel.add(toPanel, BorderLayout.NORTH);
 		toPanel.setLayout(new BorderLayout(0, 0));
 		
-		this.txtRecipient = new JTextField();
+		this.txtRecipient = new JLabel();
 		this.txtRecipient.setText("Recipient: ");
 		toPanel.add(txtRecipient, BorderLayout.WEST);
-		this.txtRecipient.setColumns(25);
+		//this.txtRecipient.setColumns(25);
 		
 		this.btnAddRecipient = new JButton("Add Recipient");
 		toPanel.add(this.btnAddRecipient, BorderLayout.EAST);
@@ -264,7 +259,7 @@ System.out.println("Message total: " + this.getActiveProfile().getMessages().siz
 		return this.mainGUI;
 	}
 
-	public JTextField getTxtRecipient() {
+	public JLabel getTxtRecipient() {
 		return this.txtRecipient;
 	}
 

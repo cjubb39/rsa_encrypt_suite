@@ -1,15 +1,16 @@
 package client;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
 import shared.ServerMessage;
+import shared.TableData;
 import shared.User;
 
-public class InboxMessage implements java.io.Serializable{
+public class InboxMessage implements TableData, java.io.Serializable{
 
 	private static final long serialVersionUID = -8850782539102043049L;
+	public transient boolean delete;
 	public final String sender;
 	public final String recipient;
 	public final Date date;
@@ -23,6 +24,7 @@ public class InboxMessage implements java.io.Serializable{
 		this.sender = this.lookupUser(sm.getSender());
 		this.recipient = this.lookupUser(sm.getRecipient());
 		this.message = new String(sm.getMessage());
+		this.delete = false;
 	}
 	
 	public String lookupUser(long id){
@@ -36,5 +38,15 @@ public class InboxMessage implements java.io.Serializable{
 		}
 		
 		return String.valueOf(id);
+	}
+
+	@Override
+	public boolean getDelete() {
+		return this.delete;
+	}
+
+	@Override
+	public void setDelete(boolean in) {
+		this.delete = in;
 	}
 }

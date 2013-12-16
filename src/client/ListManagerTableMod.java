@@ -3,11 +3,11 @@ package client;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
+import javax.swing.table.AbstractTableModel;
 
-public class ListManagerTableMod<T> implements TableModel {
+public class ListManagerTableMod<T> extends AbstractTableModel {
 
+	private static final long serialVersionUID = -1100372395245858473L;
 	private ArrayList<T> data; 
 	private Field[] fields;
 	private String[] fieldNames;
@@ -17,9 +17,8 @@ public class ListManagerTableMod<T> implements TableModel {
 		this.updateFields();
 	}
 	
-	public void updateFields(){
+	private void updateFields(){
 		if (this.data.size() > 0) {
-System.err.println("Updating fields for " + this.data.get(0).getClass());
 			this.fields = data.get(0).getClass().getFields();
 			this.fieldNames = new String[this.fields.length];
 
@@ -28,16 +27,22 @@ System.err.println("Updating fields for " + this.data.get(0).getClass());
 			}
 		}
 	}
-	
-	@Override
-	public void addTableModelListener(TableModelListener arg0) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public Class<?> getColumnClass(int arg0) {
-		return (this.data.size() > 0) ? this.data.get(0).getClass() : this.data.getClass();
+		Class<?> toRet = new String().getClass();
+		try {
+			toRet = this.fields[arg0].get(this.data.get(0)).getClass();
+		} catch (IndexOutOfBoundsException e){
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return toRet;
 	}
 
 	@Override
@@ -66,19 +71,23 @@ System.err.println("Updating fields for " + this.data.get(0).getClass());
 		
 		return toRet;
 	}
-
+	
 	@Override
-	public boolean isCellEditable(int arg0, int arg1) {
-		return false;
+	public boolean isCellEditable(int arg0, int arg1){
+		return this.getColumnClass(arg1) == new Boolean(false).getClass();
 	}
-
-	@Override
-	public void removeTableModelListener(TableModelListener arg0) {
+	
+	public void setValueAt(Object value, int arg0, int arg1){
+		if (isCellEditable(arg0, arg1)){
+			try {
+				this.fields[arg1].set(this.data.get(arg0), value);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				return;
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
-
-	@Override
-	public void setValueAt(Object arg0, int arg1, int arg2) {
-		return;
-	}
-
 }

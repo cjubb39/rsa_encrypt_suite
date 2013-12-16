@@ -3,9 +3,10 @@ package shared;
 import rsaEncrypt.KeyFile;
 import java.io.Serializable;
 
-public class User implements Serializable{
+public class User implements TableData, Serializable{
 	
 	private static final long serialVersionUID = 5125505408275243663L;
+	public transient boolean delete;
 	public final String firstName, lastName;
 	public final long ID;
 	private KeyFile pubKey;
@@ -58,5 +59,15 @@ public class User implements Serializable{
 	 */
 	public long getID() {
 		return ID;
+	}
+
+	@Override
+	public boolean getDelete() {
+		return this.delete;
+	}
+
+	@Override
+	public void setDelete(boolean in) {
+		this.delete = in;
 	}
 }
