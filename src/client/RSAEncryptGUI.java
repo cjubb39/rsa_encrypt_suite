@@ -26,6 +26,7 @@ import javax.swing.JTable;
 
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+import java.awt.GridLayout;
 
 public class RSAEncryptGUI {
 
@@ -52,7 +53,7 @@ public class RSAEncryptGUI {
 	private JMenuItem mntmExportPrivateKey;
 	private JButton btnAddRecipient;
 	
-	private JPanel inboxPanel;
+	private JPanel inboxPanel, messagePanel;
 	
 	private ClientMessage currentMessage;
 	private JMenuItem mntmReceiveMessages;
@@ -71,7 +72,7 @@ public class RSAEncryptGUI {
 		
 		this.currentMessage = new ClientMessage(this.getActiveProfile().getMe());
 		
-		this.inboxController = new InboxController(this.getActiveProfile().getMessages(), this.inboxPanel);
+		this.inboxController = new InboxController(this.getActiveProfile().getMessages(), this.inboxPanel, this.messagePanel);
 	}
 
 	/**
@@ -88,9 +89,18 @@ public class RSAEncryptGUI {
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		this.mainGUI.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
+		// create inbox panel
+		JPanel inboxPanelFull = new JPanel();
+		tabbedPane.addTab("Inbox", null, inboxPanelFull, null);
+		inboxPanelFull.setLayout(new GridLayout(2, 1));
+		
 		this.inboxPanel = new JPanel();
-		tabbedPane.addTab("Inbox", null, this.inboxPanel, null);
 		this.inboxPanel.setLayout(new BorderLayout(0, 0));
+		inboxPanelFull.add(this.inboxPanel);
+		
+		this.messagePanel = new JPanel();
+		this.messagePanel.setLayout(new BorderLayout());
+		inboxPanelFull.add(this.messagePanel);
 		
 		this.lblGreeting = new JLabel("Greetings");
 		this.inboxPanel.add(this.lblGreeting, BorderLayout.NORTH);
@@ -109,7 +119,6 @@ public class RSAEncryptGUI {
 		this.txtRecipient = new JLabel();
 		this.txtRecipient.setText("Recipient: ");
 		toPanel.add(txtRecipient, BorderLayout.WEST);
-		//this.txtRecipient.setColumns(25);
 		
 		this.btnAddRecipient = new JButton("Add Recipient");
 		toPanel.add(this.btnAddRecipient, BorderLayout.EAST);

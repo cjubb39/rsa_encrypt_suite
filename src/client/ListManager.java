@@ -13,10 +13,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import shared.TableData;
 
-public abstract class ListManager<T extends TableData> implements ActionListener{
+public abstract class ListManager<T extends TableData> implements ActionListener, ListSelectionListener{
 	
 	private ArrayList<T> data;
 	protected ListManagerTableMod<T> tableModel;
@@ -35,6 +39,8 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	public abstract ArrayList<T> addOne();
 	public abstract ArrayList<T> addOne(T toAdd);
 	public abstract void actionPerformed(ActionEvent e);
+	//public abstract void tableChanged(TableModelEvent arg0);
+	public abstract void valueChanged(ListSelectionEvent arg0);
 	
 	public ArrayList<T> deleteSelected(){
 		for(int i = 0; i < this.data.size();){
@@ -90,8 +96,8 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	}
 
 	public void resetTable(){
-		//this.dataTable.revalidate();
 		this.dataTable.setModel(this.tableModel = new ListManagerTableMod<T>(this.data));
+		//this.dataTable.getModel().addTableModelListener(this);
 	}
 	
 	public String[] getDataStringArray(){

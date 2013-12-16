@@ -21,7 +21,6 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 	private final RSAEncryptGUI gui;
 	private AddressBook contactManager;
 	private ServerList serverManager;
-	//private JList addRecipList;
 	
 	public static final JFileChooser fc = new JFileChooser("./");
 	
@@ -92,7 +91,6 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 	}
 	
 	private void updateServerInfo(ArrayList<ServerProfile> sp){
-System.out.println("update server" + sp.get(sp.size() - 1).toString() + " H" + sp.toString()+"H");
 		this.gui.setActiveServer(sp.get(sp.size() - 1));
 	}
 	
