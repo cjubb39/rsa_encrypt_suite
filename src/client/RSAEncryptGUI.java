@@ -29,6 +29,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JLabel;
 import java.awt.GridLayout;
 
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
+
 public class RSAEncryptGUI {
 
 	private RSAEncryptGUIController controller;
@@ -82,12 +85,12 @@ public class RSAEncryptGUI {
 		
 
 		//once we're good to go, add shutdown hook to autosave on quit
-		Runtime.getRuntime().addShutdownHook(new Thread(){
-			public void run(){
-					System.err.println("EMERGENCY SAVE"); saveProfile();
-				}
+		SignalHandler hander = new SignalHandler(){
+			public void handle(Signal sig){
+				exitSequence();
 			}
-		);
+		};
+		Signal.handle(new Signal("INT"), hander);
 	}
 
 	/**
@@ -223,6 +226,30 @@ public class RSAEncryptGUI {
 		this.mntmViewContacts.addActionListener(this.controller);
 		
 		//this.mainGUI.setVisible(true);
+	}
+	
+	public void exitSequence(){
+		/*String message, header = "Exit Confirmation";
+		message = "Do you want to save before exiting?";
+
+		int n = JOptionPane.showConfirmDialog(null, message, header,
+				JOptionPane.YES_NO_CANCEL_OPTION);
+
+		// if yes, do exit procedure. Else, return to normal state.
+		switch (n) {
+			case JOptionPane.CANCEL_OPTION:
+				return;
+
+			case JOptionPane.YES_OPTION:
+				this.gui.saveProfile();
+
+			case JOptionPane.NO_OPTION:
+				System.exit(0);
+				break;
+		}*/
+			
+		this.saveProfile();
+		System.exit(0);
 	}
 	
 	@SuppressWarnings("unchecked")

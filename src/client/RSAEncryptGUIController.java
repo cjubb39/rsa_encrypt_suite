@@ -191,28 +191,8 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		RSAEncryptGUIController.fc.setSelectedFile(new File(""));
 	}
 	
-	private void exitSequence(){
-		/*String message, header = "Exit Confirmation";
-		message = "Do you want to save before exiting?";
-
-		int n = JOptionPane.showConfirmDialog(null, message, header,
-				JOptionPane.YES_NO_CANCEL_OPTION);
-
-		// if yes, do exit procedure. Else, return to normal state.
-		switch (n) {
-			case JOptionPane.CANCEL_OPTION:
-				return;
-
-			case JOptionPane.YES_OPTION:
-				this.gui.saveProfile();
-
-			case JOptionPane.NO_OPTION:
-				System.exit(0);
-				break;
-		}*/
-			
-		this.gui.saveProfile();
-		System.exit(1);
+	public void exitSequence(){
+		this.gui.exitSequence();
 	}
 	
 	public void setActiveServer(ServerProfile serv){
