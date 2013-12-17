@@ -66,7 +66,7 @@ public class RSAEncryptGUI {
 	/**
 	 * Create the application.
 	 */
-	public RSAEncryptGUI() {
+	public RSAEncryptGUI() {	
 		this.loadProfile();
 		this.controller = new RSAEncryptGUIController(this);
 		this.initGUI();
@@ -79,6 +79,15 @@ public class RSAEncryptGUI {
 		this.inboxController = new InboxController(this.getActiveProfile().getMessages(), this.inboxPanel, 
 				this.messagePanel, this.mntmDeleteSelectedMessages);
 		this.getMainGUI().setVisible(true);
+		
+
+		//once we're good to go, add shutdown hook to autosave on quit
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			public void run(){
+					System.err.println("EMERGENCY SAVE"); saveProfile();
+				}
+			}
+		);
 	}
 
 	/**
