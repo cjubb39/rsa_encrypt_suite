@@ -29,9 +29,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JLabel;
 import java.awt.GridLayout;
 
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
-
 public class RSAEncryptGUI {
 
 	private RSAEncryptGUIController controller;
@@ -85,12 +82,12 @@ public class RSAEncryptGUI {
 		
 
 		//once we're good to go, add shutdown hook to autosave on quit
-		SignalHandler hander = new SignalHandler(){
-			public void handle(Signal sig){
-				exitSequence();
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			public void run(){
+					saveProfile();
+				}
 			}
-		};
-		Signal.handle(new Signal("INT"), hander);
+		);
 	}
 
 	/**
@@ -248,7 +245,7 @@ public class RSAEncryptGUI {
 				break;
 		}*/
 			
-		this.saveProfile();
+		//this.saveProfile();
 		System.exit(0);
 	}
 	

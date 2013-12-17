@@ -214,8 +214,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		// essentially "presses the exit button"
-		this.actionPerformed(new ActionEvent(this.gui.getExitButton(), ActionEvent.ACTION_PERFORMED, null));
-		
+		this.actionPerformed(new ActionEvent(this.gui.getExitButton(), ActionEvent.ACTION_PERFORMED, null));	
 	}
 
 	@Override
