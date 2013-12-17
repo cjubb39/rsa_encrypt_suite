@@ -39,7 +39,6 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	public abstract ArrayList<T> addOne();
 	public abstract ArrayList<T> addOne(T toAdd);
 	public abstract void actionPerformed(ActionEvent e);
-	//public abstract void tableChanged(TableModelEvent arg0);
 	public abstract void valueChanged(ListSelectionEvent arg0);
 	
 	public ArrayList<T> deleteSelected(){

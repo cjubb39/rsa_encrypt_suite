@@ -56,6 +56,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 			this.exitSequence();
 		} else if (arg0.getSource().equals(this.gui.getAddContact())){
 			this.contactManager.addOne();
+			this.updateAddressBookInfo();
 		} else if (arg0.getSource().equals(this.gui.getViewContacts())){
 			this.contactManager.viewAll();
 		} else if (arg0.getSource().equals(this.gui.getAddServer())){
@@ -82,6 +83,8 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 		}
 		else if(arg0.getSource().equals(this.gui.getReceiveMessagesButton())){
 			this.receiveMessages();
+		} else if (arg0.getSource().equals(this.gui.getSetActiveServerButton())){
+			this.setActiveServer();
 		}
 
 	}
@@ -96,6 +99,10 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 	
 	private void updateAddressBookInfo(){
 		
+	}
+	
+	public void setActiveServer(){
+		new SelectActiveServerGUI(new ServerList(this.gui.getActiveProfile().getServers()), this);
 	}
 	
 	private void clearMessage(JTextArea message){
@@ -199,6 +206,10 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 		
 		this.gui.saveProfile();
 		System.exit(1);
+	}
+	
+	public void setActiveServer(ServerProfile serv){
+		this.gui.setActiveServer(serv);
 	}
 
 	@Override

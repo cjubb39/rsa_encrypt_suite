@@ -14,6 +14,10 @@ public class ServerProfile implements TableData, java.io.Serializable{
 		this.port = port;
 		this.nickname = nickname;
 	}
+	
+	public String toString(){
+		return this.nickname;
+	}
 
 	/**
 	 * @return the hostname

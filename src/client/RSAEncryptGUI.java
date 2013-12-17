@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -58,6 +59,8 @@ public class RSAEncryptGUI {
 	private ClientMessage currentMessage;
 	private JMenuItem mntmReceiveMessages;
 	private InboxController inboxController;
+	private JMenuItem mntmSetActiveServer;
+	private JLabel curServerLabel;
 
 	/**
 	 * Create the application.
@@ -133,6 +136,10 @@ public class RSAEncryptGUI {
 		this.btnSend.addActionListener(this.controller);
 		compButPanel.add(this.btnSend);
 		
+		this.curServerLabel = new JLabel();
+		this.curServerLabel.setText("Server: " + this.getActiveServer());
+		compButPanel.add(this.curServerLabel);
+		
 		this.btnClear = new JButton("Clear");
 		this.btnClear.addActionListener(this.controller);
 		compButPanel.add(this.btnClear);
@@ -174,7 +181,7 @@ public class RSAEncryptGUI {
 		JMenu mnServer = new JMenu("Server");
 		menuBar.add(mnServer);
 	
-		this.mntmAddServer = new JMenuItem("Add");
+		this.mntmAddServer = new JMenuItem("Add New Server");
 		mnServer.add(this.mntmAddServer);
 		this.mntmAddServer.addActionListener(this.controller);
 		
@@ -182,14 +189,18 @@ public class RSAEncryptGUI {
 		mnServer.add(this.mntmViewServers);
 		this.mntmViewServers.addActionListener(this.controller);
 		
+		this.mntmSetActiveServer = new JMenuItem("Set Active Server");
+		mnServer.add(this.mntmSetActiveServer);
+		this.mntmSetActiveServer.addActionListener(this.controller);
+		
 		JMenu mnAddressBook = new JMenu("Address Book");
 		menuBar.add(mnAddressBook);	
 		
-		this.mntmAddContact = new JMenuItem("Add");
+		this.mntmAddContact = new JMenuItem("Add Contact");
 		mnAddressBook.add(this.mntmAddContact);
 		this.mntmAddContact.addActionListener(this.controller);
 		
-		this.mntmViewContacts = new JMenuItem("View");
+		this.mntmViewContacts = new JMenuItem("View Contacts");
 		mnAddressBook.add(this.mntmViewContacts);
 		this.mntmViewContacts.addActionListener(this.controller);
 		
@@ -222,9 +233,8 @@ public class RSAEncryptGUI {
 		//set active profile
 		this.activeProfileIndex = 0;
 		if (this.getActiveProfile().getServers().size() > 0){
-			this.activeServerProfile = this.getActiveProfile().getServers().get(0);
+			this.setActiveServer(this.getActiveProfile().getServers().get(0));
 		}
-System.out.println("Message total: " + this.getActiveProfile().getMessages().size());
 	}
 	
 	protected void saveProfile(){
@@ -245,11 +255,18 @@ System.out.println("Message total: " + this.getActiveProfile().getMessages().siz
 	}
 	
 	public ServerProfile getActiveServer(){
-		return this.activeServerProfile;
+		return (this.activeServerProfile != null) ? this.activeServerProfile : new ServerProfile("",0,"No Active Server");
 	}
 	
 	public void setActiveServer(ServerProfile serv){
 		this.activeServerProfile = serv;
+		try{
+			this.curServerLabel.setText("Server: " + this.getActiveServer());
+		} catch (Exception e){}
+		
+		 //move new active server to front so it persists
+		ArrayList<ServerProfile> temp = this.getActiveProfile().getServers();
+		Collections.swap(temp, temp.indexOf(serv), 0);
 	}
 	
 	public ClientMessage resetCurrentMessage(){
@@ -338,5 +355,9 @@ System.out.println("Message total: " + this.getActiveProfile().getMessages().siz
 	
 	public InboxController getInboxController(){
 		return this.inboxController;
+	}
+	
+	public JMenuItem getSetActiveServerButton(){
+		return this.mntmSetActiveServer;
 	}
 }

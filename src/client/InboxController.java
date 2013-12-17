@@ -91,23 +91,22 @@ public class InboxController extends ListManager<InboxMessage>{
 		}
 	}
 
-
-/*	public void tableChanged(TableModelEvent arg0) {
-		InboxMessage message = this.getData().get(arg0.getFirstRow());
-		JLabel header = new JLabel("FROM: " + message.recipient + "\nDate: " + message.date.toString());
-		JTextArea text = new JTextArea(message.message);
-		text.setEditable(false);
-		
-		this.fullMessage.setLayout(new BorderLayout());
-		this.fullMessage.add(header, BorderLayout.NORTH);
-		this.fullMessage.add(text, BorderLayout.CENTER);
-	}*/
-
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {	
-		if (arg0.getValueIsAdjusting()) return;
+		//if (arg0.getValueIsAdjusting()) return;
 		
-		InboxMessage message = this.getData().get(this.dataTable.getSelectionModel().getLeadSelectionIndex());
+		int index = 0;
+		
+		try{
+			index = this.dataTable.getRowSorter().convertRowIndexToModel(
+					this.dataTable.getSelectionModel().getLeadSelectionIndex());
+		} catch (IndexOutOfBoundsException e){;
+			this.fullMessageHeader.setText("");
+			this.fullMessageText.setText("");
+			this.fullMessage.revalidate();
+		}
+		
+		InboxMessage message = this.getData().get(index);
 		this.fullMessageHeader.setText("From: " + message.sender + "    Date: " + message.date.toString());
 		this.fullMessageText.setText(message.message);
 		
