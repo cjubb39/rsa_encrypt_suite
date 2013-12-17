@@ -20,7 +20,7 @@ public class ServerHandler {
 		//convert ServerMessage to Encrypted ServerMessage
 		RSAMessage toSend = new RSAMessage(toSendMes.getMessage(), true).
 				encryptMessage(new AddressBook(user.getAddressBook()).lookupByID(toSendMes.getRecipient()).getPubKey());
-		toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getSender(), toSend.getMessage());
+		toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getRecipient(), toSend.getMessage());
 
 		while (!in.hasNext(ServerAckMessage.newUserCheck)) {
 			if (in.hasNext()) {
