@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,12 +30,12 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	private JFrame mainGUI;
 	protected JTable dataTable;
 	protected JScrollPane scrollpane;
-	protected TableIndivCellRenderer cellRenderer;
+	protected TableCellRenderer cellRenderer;
 	
 	public ListManager(ArrayList<T> data){
 		this.data = data;
 		this.tableModel = new ListManagerTableMod<T>(data);
-		this.cellRenderer = new TableIndivCellRenderer();
+		this.cellRenderer = new client.TableCellRenderer();
 	}
 	
 	public abstract ArrayList<T> addOne();
