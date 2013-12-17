@@ -13,11 +13,15 @@ public class ServerMessage implements Serializable{
 	
 	public static final int MAX_SIZE = 1024 * 1024 * 16; //16 MB
 	
-	public ServerMessage(long sender, long recipient, byte[] message){
+	public ServerMessage(long sender, long recipient, byte[] message, Date date){
 		this.sender = sender;
 		this.recipient = recipient;
 		this.message = message;
-		this.date = new Date();
+		this.date = date;
+	}
+	
+	public ServerMessage(long sender, long recipient, byte[] message){
+		this(sender, recipient, message, new Date());
 	}
 	
 	public ServerMessage(User sender, User recipient, byte[] message){

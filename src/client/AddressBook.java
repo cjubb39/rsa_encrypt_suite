@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -93,6 +94,17 @@ public class AddressBook extends ListManager<User>{
 		} else if (e.getSource().equals(this.getDeleteButton())){
 			this.deleteSelected();
 		}
+	}
+	
+	public User lookupByID(long id){
+		Iterator<User> it = this.getData().listIterator();
+		while(it.hasNext()){
+			User temp;
+			if ((temp = it.next()).getID() == id){
+				return temp;
+			}
+		}
+		return null;
 	}
 	
 	@Override

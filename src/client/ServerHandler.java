@@ -16,6 +16,11 @@ public class ServerHandler {
 		Socket socket = new Socket(server.getHostname(), server.getPort());
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		Scanner in = new Scanner(socket.getInputStream());
+		
+		//convert ServerMessage to Encrypted ServerMessage
+		RSAMessage toSend = new RSAMessage(toSendMes.getMessage(), true).
+				encryptMessage(new AddressBook(user.getAddressBook()).lookupByID(toSendMes.getRecipient()).getPubKey());
+		toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getSender(), toSend.getMessage());
 
 		while (!in.hasNext(ServerAckMessage.newUserCheck)) {
 			if (in.hasNext()) {
@@ -280,6 +285,18 @@ System.out.println("Successfully authenticated");
 		out.close();
 		in.close();
 		socket.close();
+		
+		//convert encrypted messages to plaintext
+		if (messagesIn != null && messagesIn.length > 0){
+			ServerMessage[] toRet = new ServerMessage[messagesIn.length];
+			for (int i = 0; i < toRet.length; i++){
+				RSAMessage temp = new RSAMessage(messagesIn[i].getMessage()).decryptMessage(user.getKp().getPriv());
+				toRet[i] = new ServerMessage(messagesIn[i].getSender(), messagesIn[i].getRecipient(),
+						temp.getMessage(), messagesIn[i].getDate());
+			}
+			
+			messagesIn = toRet;
+		}
 		
 		/*System.out.println("Messages for " + user.getMe().getFirstName() + ": ");
 		int i = 0;
