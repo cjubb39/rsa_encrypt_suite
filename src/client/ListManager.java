@@ -144,7 +144,7 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 			tc.setMaxWidth(width*2);
 		}
 		// set last column specially
-		this.dataTable.getColumnModel().getColumn(colCount - 1).setMaxWidth(5*maxWidth);
+		this.dataTable.getColumnModel().getColumn(colCount - 1).setMaxWidth(7*maxWidth);
 	}
 	
 	public String[] getDataStringArray(){
