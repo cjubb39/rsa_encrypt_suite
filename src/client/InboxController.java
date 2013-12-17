@@ -2,10 +2,13 @@ package client;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -15,16 +18,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-public class InboxController extends ListManager<InboxMessage>{
+public class InboxController extends ListManager<InboxMessage> {
 
 	private JPanel list, fullMessage;
-	private JButton deleteSelected;
+	private JMenuItem deleteSelected;
 	private JLabel fullMessageHeader;
 	private JTextArea fullMessageText;
 	
-	public InboxController(ArrayList<InboxMessage> messages, JPanel list, JPanel fullMessage){
+	public InboxController(ArrayList<InboxMessage> messages, JPanel list, 
+			JPanel fullMessage, JMenuItem deleteSelected){
 		super(messages);
-		
+		this.deleteSelected = deleteSelected;
 		this.list = list;
 		this.fullMessage = fullMessage;
 		
@@ -47,13 +51,7 @@ public class InboxController extends ListManager<InboxMessage>{
 	
 	@Override
 	public ArrayList<InboxMessage> viewAll(){		
-		// create control panel
-		JPanel controlPanel = new JPanel();
-		this.deleteSelected = new JButton("Delete Selected");
-		controlPanel.add(this.deleteSelected);
 		this.deleteSelected.addActionListener(this);
-		
-		this.list.add(controlPanel, BorderLayout.NORTH);
 		
 		// setup table
 		this.dataTable = new JTable(this.tableModel);

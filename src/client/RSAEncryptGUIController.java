@@ -2,6 +2,8 @@ package client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -16,7 +18,7 @@ import rsaEncrypt.KeyFile;
 import shared.ServerMessage;
 import shared.User;
 
-public class RSAEncryptGUIController implements ActionListener, WindowListener {
+public class RSAEncryptGUIController implements ActionListener, WindowListener, ComponentListener {
 
 	private final RSAEncryptGUI gui;
 	private AddressBook contactManager;
@@ -114,6 +116,12 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 	}
 	
 	private boolean prepareAndSendMessage(JTextArea message){
+		if (this.serverManager.getData().size() == 0){
+			JOptionPane.showMessageDialog(this.gui.getMainGUI(), "Must Select Valid Active Server!", 
+					"Invalid Server", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		
 		// get proper message
 		this.gui.getCurrentMessage().setMessage(this.gui.getMessageArea().getText());
 		ServerMessage[] toSend = this.gui.getCurrentMessage().toServerMessages();
@@ -125,15 +133,14 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 			e.printStackTrace();
 		}
 		
-		boolean success = true;
 		for (ServerMessage sm : toSend){
 			if(!this.sendMessage(sm, this.gui.getActiveProfile(), this.gui.getActiveServer())){
-				success = false;
+				return false;
 			}
 		}
 		this.resetCompose();
 		
-		return success;
+		return true;
 	}
 	
 	private boolean sendMessage(ServerMessage toSend, UserProfile sender, ServerProfile server){
@@ -203,7 +210,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 				System.exit(0);
 				break;
 		}*/
-		
+			
 		this.gui.saveProfile();
 		System.exit(1);
 	}
@@ -251,6 +258,28 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener {
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent arg0) {
+		//this.gui.getInboxController().resetTable();
+	}
+
+	@Override
+	public void componentResized(ComponentEvent arg0) {
+		//this.gui.getInboxController().resetColumnWidths();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}

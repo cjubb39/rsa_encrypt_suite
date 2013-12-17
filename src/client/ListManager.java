@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -87,14 +89,16 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		
 		this.dataTable = new JTable(this.tableModel);
 		this.dataTable.setAutoCreateRowSorter(true);
+		
 		this.scrollpane = new JScrollPane(this.dataTable, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		this.mainGUI.add(this.scrollpane, BorderLayout.CENTER);
 		
-		this.mainGUI.setVisible(true);
-		
 		this.resetColumnWidths();
+		this.dataTable.getTableHeader().setReorderingAllowed(false);
+		
+		this.mainGUI.setVisible(true);
 		
 		return this.data;
 	}
@@ -106,26 +110,29 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	
 	public void resetColumnWidths(){
 		if (this.dataTable.getColumnCount() == 0) return;
-		int colCount = this.dataTable.getColumnCount();
+		int colCount = this.dataTable.getColumnCount(), totalWidth = 0, maxWidth = 0;
 		for (int i = 0; i < colCount; i++){
 			TableColumn tc = this.dataTable.getColumnModel().getColumn(i);
 			int width = 0;
 			
 			TableCellRenderer renderer = tc.getHeaderRenderer();
 			if (renderer == null) renderer = this.dataTable.getTableHeader().getDefaultRenderer();
-			//Component comp = this.dataTable.prepareRenderer(renderer, 0, i);
 			Component comp = renderer.getTableCellRendererComponent(this.dataTable, 
 					tc.getHeaderValue(), false, false, 0, 0);
 			width = comp.getPreferredSize().width;
-			
+
 			for (int row = 0; row < this.dataTable.getRowCount(); row++){
 				renderer = this.dataTable.getCellRenderer(row, i);
 				comp = this.dataTable.prepareRenderer(renderer, row, i);
 				width = Math.max(comp.getPreferredSize().width, width);
 			}
-			
+			totalWidth += width;
+			maxWidth = (width > maxWidth) ? width : maxWidth;
 			tc.setPreferredWidth(width);
+			tc.setMaxWidth(width*5);
 		}
+		// set last column specially
+		this.dataTable.getColumnModel().getColumn(colCount - 1).setMaxWidth(10*maxWidth);
 	}
 	
 	public String[] getDataStringArray(){

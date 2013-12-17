@@ -2,12 +2,12 @@ package client;
 
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -52,6 +52,7 @@ public class RSAEncryptGUI {
 	private JMenuItem mntmViewContacts;
 	private JMenuItem mntmExportPublicKey;
 	private JMenuItem mntmExportPrivateKey;
+	private JMenuItem mntmDeleteSelectedMessages;
 	private JButton btnAddRecipient;
 	
 	private JPanel inboxPanel, messagePanel;
@@ -75,7 +76,9 @@ public class RSAEncryptGUI {
 		
 		this.currentMessage = new ClientMessage(this.getActiveProfile().getMe());
 		
-		this.inboxController = new InboxController(this.getActiveProfile().getMessages(), this.inboxPanel, this.messagePanel);
+		this.inboxController = new InboxController(this.getActiveProfile().getMessages(), this.inboxPanel, 
+				this.messagePanel, this.mntmDeleteSelectedMessages);
+		this.getMainGUI().setVisible(true);
 	}
 
 	/**
@@ -83,8 +86,9 @@ public class RSAEncryptGUI {
 	 */
 	private void initGUI() {
 		this.mainGUI = new JFrame("RSA Encryption Suite");
-		this.mainGUI.setPreferredSize(new Dimension(700, 500));
-		this.mainGUI.setSize(new Dimension(700, 500));
+		this.mainGUI.setVisible(false);
+		this.mainGUI.setPreferredSize(new Dimension(900	, 700));
+		this.mainGUI.setSize(new Dimension(900, 700));
 		this.mainGUI.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.mainGUI.addWindowListener(this.controller);
 		this.mainGUI.getContentPane().setLayout(new BorderLayout(0, 0));
@@ -98,7 +102,7 @@ public class RSAEncryptGUI {
 		inboxPanelFull.setLayout(new GridLayout(2, 1));
 		
 		this.inboxPanel = new JPanel();
-		this.inboxPanel.setLayout(new BorderLayout(0, 0));
+		this.inboxPanel.setLayout(new BorderLayout());
 		inboxPanelFull.add(this.inboxPanel);
 		
 		this.messagePanel = new JPanel();
@@ -106,8 +110,9 @@ public class RSAEncryptGUI {
 		inboxPanelFull.add(this.messagePanel);
 		
 		this.lblGreeting = new JLabel("Greetings");
-		this.inboxPanel.add(this.lblGreeting, BorderLayout.NORTH);
+		//this.lblGreeting.setBorder(new EmptyBorder(10, 10, 10, 10));
 		this.lblGreeting.setText("Hello, " + this.profiles.get(0).getMe().getFirstName() + "!");
+		this.inboxPanel.add(this.lblGreeting, BorderLayout.NORTH);
 		
 		// create compose panel
 		JPanel composePanel = new JPanel();
@@ -178,6 +183,10 @@ public class RSAEncryptGUI {
 		mnMessage.add(this.mntmReceiveMessages);
 		this.mntmReceiveMessages.addActionListener(this.controller);
 		
+		this.mntmDeleteSelectedMessages = new JMenuItem("Delete Selected Messages");
+		mnMessage.add(this.mntmDeleteSelectedMessages);
+		// actionListenere in this.inboxController
+		
 		JMenu mnServer = new JMenu("Server");
 		menuBar.add(mnServer);
 	
@@ -204,7 +213,7 @@ public class RSAEncryptGUI {
 		mnAddressBook.add(this.mntmViewContacts);
 		this.mntmViewContacts.addActionListener(this.controller);
 		
-		this.mainGUI.setVisible(true);
+		//this.mainGUI.setVisible(true);
 	}
 	
 	@SuppressWarnings("unchecked")

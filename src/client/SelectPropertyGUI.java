@@ -40,9 +40,10 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 		this.dataList = new JList(this.data.getDataStringArray());
 		this.dataList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		this.dataList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		//this.addRecipList.setVisibleRowCount(-1);
-		this.dataList.setFixedCellWidth(100);
+		this.dataList.setFixedCellWidth(-1);
 		this.dataList.setFixedCellHeight(25);
+		this.dataList.setCellRenderer(new ListRenderer(10, 5, 10, 10));
+		
 		JScrollPane scrollPane = new JScrollPane(this.dataList);
 		
 		//get buttons
