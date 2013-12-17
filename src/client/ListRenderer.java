@@ -26,7 +26,7 @@ public class ListRenderer extends DefaultListCellRenderer{
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean hasFocus) {
 		
-		// sketchy but it works
+		// sketchy cast but it works
 		JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected, hasFocus);
 		
 		comp.setBorder(BorderFactory.createEmptyBorder(this.topPad, this.leftPad, this.bottomPad, this.rightPad));

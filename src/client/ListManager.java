@@ -6,10 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
+import java.util.Enumeration;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,8 +17,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -30,15 +27,16 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	private ArrayList<T> data;
 	protected ListManagerTableMod<T> tableModel;
 	
-	//private JButton deleteButton;
 	private JButton viewAddButton, viewExitButton, deleteButton;
 	private JFrame mainGUI;
 	protected JTable dataTable;
 	protected JScrollPane scrollpane;
+	protected TableIndivCellRenderer cellRenderer;
 	
 	public ListManager(ArrayList<T> data){
 		this.data = data;
 		this.tableModel = new ListManagerTableMod<T>(data);
+		this.cellRenderer = new TableIndivCellRenderer();
 	}
 	
 	public abstract ArrayList<T> addOne();
@@ -89,6 +87,9 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		
 		this.dataTable = new JTable(this.tableModel);
 		this.dataTable.setAutoCreateRowSorter(true);
+		this.dataTable.getTableHeader().setReorderingAllowed(false);
+		this.dataTable.setDefaultRenderer(new Date().getClass(), this.cellRenderer);
+		//this.resetCellRenderers();
 		
 		this.scrollpane = new JScrollPane(this.dataTable, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -96,21 +97,30 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		this.mainGUI.add(this.scrollpane, BorderLayout.CENTER);
 		
 		this.resetColumnWidths();
-		this.dataTable.getTableHeader().setReorderingAllowed(false);
+		
+		this.resetTable();
 		
 		this.mainGUI.setVisible(true);
-		
 		return this.data;
 	}
 
 	public void resetTable(){
 		this.dataTable.setModel(this.tableModel = new ListManagerTableMod<T>(this.data));
+		this.resetCellRenderers();
 		this.resetColumnWidths();
+	}
+	
+	public void resetCellRenderers(){
+		/*Enumeration<TableColumn> en = this.dataTable.getColumnModel().getColumns();
+		
+		while(en.hasMoreElements()){
+			en.nextElement().setCellRenderer(this.cellRenderer);
+		}*/
 	}
 	
 	public void resetColumnWidths(){
 		if (this.dataTable.getColumnCount() == 0) return;
-		int colCount = this.dataTable.getColumnCount(), totalWidth = 0, maxWidth = 0;
+		int colCount = this.dataTable.getColumnCount(), maxWidth = 0;
 		for (int i = 0; i < colCount; i++){
 			TableColumn tc = this.dataTable.getColumnModel().getColumn(i);
 			int width = 0;
@@ -126,13 +136,16 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 				comp = this.dataTable.prepareRenderer(renderer, row, i);
 				width = Math.max(comp.getPreferredSize().width, width);
 			}
-			totalWidth += width;
-			maxWidth = (width > maxWidth) ? width : maxWidth;
+			if (i != colCount - 1)
+				maxWidth = (width > maxWidth) ? width : maxWidth;
+			
+			// set width
 			tc.setPreferredWidth(width);
-			tc.setMaxWidth(width*5);
+			tc.setMinWidth(width + 2);
+			tc.setMaxWidth(width*2);
 		}
 		// set last column specially
-		this.dataTable.getColumnModel().getColumn(colCount - 1).setMaxWidth(10*maxWidth);
+		this.dataTable.getColumnModel().getColumn(colCount - 1).setMaxWidth(5*maxWidth);
 	}
 	
 	public String[] getDataStringArray(){

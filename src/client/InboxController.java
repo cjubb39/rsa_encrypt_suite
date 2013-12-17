@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -41,6 +42,8 @@ public class InboxController extends ListManager<InboxMessage> {
 		this.fullMessageHeader = new JLabel();
 		this.fullMessageText = new JTextArea();
 		this.fullMessageText.setEditable(false);
+		this.fullMessageText.setLineWrap(true);
+		this.fullMessageText.setWrapStyleWord(true);
 		
 		JScrollPane scrollpane = new JScrollPane(this.fullMessageText, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -61,6 +64,8 @@ public class InboxController extends ListManager<InboxMessage> {
 		this.dataTable.setAutoCreateRowSorter(true);
 		//this.dataTable.getModel().addTableModelListener(this);
 		this.dataTable.getSelectionModel().addListSelectionListener(this);
+		this.dataTable.setDefaultRenderer(new Date().getClass(), this.cellRenderer);
+		//this.resetCellRenderers();
 		
 		this.scrollpane = new JScrollPane(this.dataTable, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
