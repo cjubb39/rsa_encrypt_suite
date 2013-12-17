@@ -6,8 +6,9 @@ public class ServerProfile implements TableData, java.io.Serializable{
 
 	private static final long serialVersionUID = 2460806966800521724L;
 	public boolean delete;
-	public String nickname, hostname;
+	public String hostname;
 	public int port;
+	public String nickname;
 	
 	public ServerProfile(String hostname, int port, String nickname){
 		this.hostname = hostname;

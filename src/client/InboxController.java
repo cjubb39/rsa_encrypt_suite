@@ -68,6 +68,8 @@ public class InboxController extends ListManager<InboxMessage>{
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.list.add(this.scrollpane, BorderLayout.CENTER);
 
+		this.resetColumnWidths();
+		
 		return this.getData();
 	}
 	

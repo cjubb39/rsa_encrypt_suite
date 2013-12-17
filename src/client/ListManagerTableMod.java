@@ -24,6 +24,9 @@ public class ListManagerTableMod<T> extends AbstractTableModel {
 
 			for (int i = 0; i < this.fieldNames.length; i++) {
 				this.fieldNames[i] = this.fields[i].getName();
+				if (this.getColumnClass(i) == new Boolean(false).getClass()){
+					this.fieldNames[i] += "?";
+				}
 			}
 		}
 	}

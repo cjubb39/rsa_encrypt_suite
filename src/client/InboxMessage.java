@@ -12,7 +12,7 @@ public class InboxMessage implements TableData, java.io.Serializable{
 	private static final long serialVersionUID = -8850782539102043049L;
 	public transient boolean delete;
 	public final String sender;
-	public final String recipient;
+	private final String recipient;
 	public final Date date;
 	public final String message;
 	private transient final AddressBook addressBook;

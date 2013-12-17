@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import shared.TableData;
 
@@ -91,12 +94,38 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		
 		this.mainGUI.setVisible(true);
 		
+		this.resetColumnWidths();
+		
 		return this.data;
 	}
 
 	public void resetTable(){
 		this.dataTable.setModel(this.tableModel = new ListManagerTableMod<T>(this.data));
-		//this.dataTable.getModel().addTableModelListener(this);
+		this.resetColumnWidths();
+	}
+	
+	public void resetColumnWidths(){
+		if (this.dataTable.getColumnCount() == 0) return;
+		int colCount = this.dataTable.getColumnCount();
+		for (int i = 0; i < colCount; i++){
+			TableColumn tc = this.dataTable.getColumnModel().getColumn(i);
+			int width = 0;
+			
+			TableCellRenderer renderer = tc.getHeaderRenderer();
+			if (renderer == null) renderer = this.dataTable.getTableHeader().getDefaultRenderer();
+			//Component comp = this.dataTable.prepareRenderer(renderer, 0, i);
+			Component comp = renderer.getTableCellRendererComponent(this.dataTable, 
+					tc.getHeaderValue(), false, false, 0, 0);
+			width = comp.getPreferredSize().width;
+			
+			for (int row = 0; row < this.dataTable.getRowCount(); row++){
+				renderer = this.dataTable.getCellRenderer(row, i);
+				comp = this.dataTable.prepareRenderer(renderer, row, i);
+				width = Math.max(comp.getPreferredSize().width, width);
+			}
+			
+			tc.setPreferredWidth(width);
+		}
 	}
 	
 	public String[] getDataStringArray(){
