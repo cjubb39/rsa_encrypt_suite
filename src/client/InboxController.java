@@ -17,7 +17,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.TableColumnModel;
 
 public class InboxController extends ListManager<InboxMessage> {
 
@@ -100,7 +99,6 @@ public class InboxController extends ListManager<InboxMessage> {
 	}
 	
 	@Override
-	//TODO load message from file into inbox
 	public ArrayList<InboxMessage> addOne() {
 		this.resetTable();
 		return this.getData();
