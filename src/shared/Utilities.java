@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 /**
  * General utilities and standardizations for serializing and reading data
  * @author Chae Jubb
- * @version 1.0
+ * @version 1.1
  *
  */
 public final class Utilities {
@@ -61,10 +61,17 @@ public final class Utilities {
 		return is.readObject();
 	}
 
-	public static byte[] receieveData(InputStream in) throws IOException {
+	public static byte receiveByte(InputStream in) throws IOException{
+		byte data = -1;
+		if ((data = (byte) in.read()) == (byte) -1)
+			System.err.println("BUFF ERROR RECEIVE BYTE");
+		return data;
+	}
+
+	public static byte[] receiveData(InputStream in) throws IOException {
 		byte[] size = new byte[4];
 		if (in.read(size, 0, 4) != 4)
-			System.err.println("BUFF ERROR RECEIVEDATA");
+			System.err.println("BUFF ERROR RECEIVE DATA MASS");
 		ByteBuffer temp = ByteBuffer.allocate(4).put(size);
 		temp.flip();
 		int dataSize = temp.getInt();
@@ -72,6 +79,10 @@ public final class Utilities {
 		byte[] toRet = new byte[dataSize];
 		in.read(toRet);
 		return toRet;
+	}
+
+	public static void sendByte(byte data, OutputStream out) throws IOException {
+		out.write(data);
 	}
 
 	public static void sendData(byte[] data, OutputStream out) throws IOException {

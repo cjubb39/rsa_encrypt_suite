@@ -108,7 +108,7 @@ public class ClientTest {
 				// user found
 				// get server public key
 				 
-				byte[] messageIn = shared.Utilities.receieveData(socket
+				byte[] messageIn = shared.Utilities.receiveData(socket
 						.getInputStream());
 				KeyFile kf = (KeyFile) shared.Utilities.deserializeFromByteArray(messageIn);
 				// System.out.println("N: " + kf.getGroupSize() + "; E: " +
@@ -118,7 +118,7 @@ public class ClientTest {
 
 				// get test message
 				 
-				byte[] testIn = shared.Utilities.receieveData(socket
+				byte[] testIn = shared.Utilities.receiveData(socket
 						.getInputStream());
 				// testIn = shared.Utilities.trimByteArray(testIn);
 				// System.out.println("READ IN");
@@ -234,7 +234,7 @@ System.out.println("Successful Authentication");
 				 // //System.out.println("IS READ"); messageIn =
 				 // shared.Utilities.trimByteArray(messageIn);
 				 
-				byte[] messageIn = shared.Utilities.receieveData(socket
+				byte[] messageIn = shared.Utilities.receiveData(socket
 						.getInputStream());
 				KeyFile kf = (KeyFile) shared.Utilities.deserializeFromByteArray(messageIn);
 				// System.out.println("N: " + kf.getGroupSize() + "; E: " +
@@ -247,7 +247,7 @@ System.out.println("Successful Authentication");
 				 //byte[] testIn = new byte[1024*1024]; //1MB max testMessage
 				 //socket.getInputStream().read(testIn);
 				 
-				byte[] testIn = shared.Utilities.receieveData(socket
+				byte[] testIn = shared.Utilities.receiveData(socket
 						.getInputStream());
 				// testIn = shared.Utilities.trimByteArray(testIn);
 				// System.out.println("READ IN");
@@ -301,7 +301,7 @@ System.out.println("Successfully authenticated");
 			 
 			ServerMessage[] messagesIn;// = (ServerMessage[])
 										// shared.Utilities.deserialize(socket.getInputStream());
-			messagesIn = (ServerMessage[]) shared.Utilities.deserializeFromByteArray(shared.Utilities.receieveData(socket
+			messagesIn = (ServerMessage[]) shared.Utilities.deserializeFromByteArray(shared.Utilities.receiveData(socket
 							.getInputStream()));
 			out.println("READY TO CLOSE");
 

@@ -1,16 +1,16 @@
 package server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.util.Random;
-import java.util.Scanner;
 
 import rsaEncrypt.KeyPair;
 import rsaEncrypt.MakeKeys;
+import shared.CommBytes;
 import shared.RSAMessage;
-import shared.ServerAckMessage;
 import shared.ServerMessage;
 import shared.User;
 import shared.Utilities;
@@ -19,14 +19,14 @@ import shared.Utilities;
  * Controller of connections with RSA server
  * 
  * @author Chae Jubb
- * @version 1.0
+ * @version 2.0
  * 
  */
 public class RSAMessageServerWorker implements Runnable {
 
 	private Socket client;
-	private PrintWriter out;
-	private Scanner in;
+	private OutputStream out;
+	private InputStream in;
 	private RSAMessageServer mainServer;
 	private Random rng;
 
@@ -41,10 +41,8 @@ public class RSAMessageServerWorker implements Runnable {
 		System.out.println("Client " + this.client.getInetAddress().getHostAddress() + " Connected");
 
 		try {
-			this.out = new PrintWriter(this.client.getOutputStream(), true);
-			this.in = new Scanner(this.client.getInputStream());
-			this.in.useDelimiter(System.getProperty("line.separator"));
-
+			this.in = this.client.getInputStream();
+			this.out = this.client.getOutputStream();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,187 +50,110 @@ public class RSAMessageServerWorker implements Runnable {
 		this.rng = new Random(System.nanoTime());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
 	public void run() {
-		if (this.newUser()) {
-			this.addNewUser();
-		} else {
-			// get user
-			User curUser = null;
-			try {
-				curUser = this.authenticate();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+		byte action = 0;
+		User user = null;
+	
+		byte debug = -1;
+		
+		try{
+			// start comm with ready byte and send ack byte
+			Utilities.sendByte(CommBytes.ready, this.out);
+			if ((debug = Utilities.receiveByte(this.in)) != CommBytes.ready){
+				System.out.println("OUT: " + debug);
+				return;
 			}
-
-			// if error authenticating, quit
-			if (curUser == null) {
-				System.out.println("Failure authentication");
-				this.out.println(ServerAckMessage.failure);
-				this.in.next(); // get confirmation
+			Utilities.sendByte(CommBytes.ack, this.out);
+			
+			// get intentions
+			Utilities.sendByte(CommBytes.ready, this.out);
+			action = Utilities.receiveByte(this.in);
+			Utilities.sendByte(CommBytes.ack, this.out);
+			
+			//get user; if bad, end connection
+			Utilities.sendByte(CommBytes.ready, this.out);
+			if ((user = this.retrieveUser()) == null){
 				this.closeConnections();
 				return;
 			}
-			System.out.println("Successful authentication from " + curUser.getFirstName());
-			this.out.println(ServerAckMessage.success);
+			Utilities.sendByte(CommBytes.ack, this.out);
 			
+			//authenticate
+			this.authenticate(user);
 			
-			// get action wanted
-			this.out.println(ServerAckMessage.readyForAction);
-			String request = null;
-			if ((request = this.in.next()).equals("SEND")) {
-				// attempt to get message
-				try {
-					this.receiveMessage(curUser.getID());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else if (request.equals("RECEIVE")) {
-				try {
-					this.checkMessages(curUser.getID());
-					this.in.next(); // get ready to close signal
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			// wants to add user
+			if ((action & CommBytes.addNewUser) != 0){
+				this.addUser(user);
 			}
-		}
-		this.out.println(ServerAckMessage.endingConnection);
-		this.closeConnections();
-	}
-	
-	private User authenticate() throws IOException {
-		// let client know we're starting
-		this.out.println(ServerAckMessage.readyForAuth);
-
-		// look for user
-		User readIn = this.retrieveUser();
-		if (!this.mainServer.findUser(readIn)){
-			//user not found
-			System.out.println("Did not find user: " + readIn.getFirstName());
-			this.out.println(ServerAckMessage.userNotFound);
-			return null;
-		} else {
-			System.out.println("Found user: " + readIn.getFirstName());
-			this.out.println(ServerAckMessage.userFound);
 			
-			while(!this.in.hasNext(ServerAckMessage.ack)){
-				if (this.in.hasNext())
-					this.in.next(); 
+			// wants to send a message, so we receive it.
+			if ((action & CommBytes.sendMessage) != 0){
+				this.receiveMessage(user);
 			}
-			this.in.next(); //get ready signal
-
-			//verifying identity with test
-			KeyPair kp = MakeKeys.generateKeys();	
-			RSAMessage test = new RSAMessage(new BigInteger(kp.getPub().getGroupSize().bitLength()/8, this.rng).toByteArray(), true);
-			RSAMessage testMes = test.encryptMessage(readIn.getPubKey());
-		
-			// send public key
-			shared.Utilities.sendData(shared.Utilities.serializeToByteArray(kp.getPub()), this.client.getOutputStream());
-		
-			//recieve ack that first part received
-			this.in.next();
 			
-			// send test sequence
-			shared.Utilities.sendData(testMes.getMessage(), this.client.getOutputStream());
-	
-			// read response
-			byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
-			
-			RSAMessage retMessage = new RSAMessage(messageIn).decryptMessage(kp.getPriv());
-			BigInteger returned = new BigInteger(retMessage.getMessage());
-
-			if(returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)){
-				return readIn;
-			} else {
-				return null;
+			// wants to receive his/her messages, so we send them
+			if ((action & CommBytes.receiveMessage) != 0){
+				this.sendMessage(user);
 			}
-		}
-	}
-	
-	/**
-	 * Asks client if trying to add new user
-	 * @return True if trying to add new user.  False otherwise
-	 */
-	public boolean newUser(){
-		this.out.println(ServerAckMessage.newUserCheck);
-		return this.in.next().equals(ServerAckMessage.affirmative);
-	}
-	
-	/**
-	 * Actually adds new user to database
-	 */
-	public void addNewUser(){
-		this.out.println(ServerAckMessage.readyForNewUser);
-		User toAdd;
-		try {
-			toAdd = this.retrieveUser();
-		} catch (IOException e) {
+			
+			Utilities.sendByte(CommBytes.success, this.out);
+		} catch (IOException e){
 			e.printStackTrace();
-			this.out.println(ServerAckMessage.failure);
+		}
+		
+	}
+	
+	private void addUser(User user){
+		if (!this.mainServer.findUser(user))
+			this.mainServer.addUser(user);
+	}
+	
+	private void receiveMessage(User user) throws IOException{
+		ServerMessage[] messagesIn;
+		
+		Utilities.sendByte(CommBytes.ready, this.out);
+		try {
+			messagesIn = (ServerMessage[]) Utilities.deserializeFromByteArray(Utilities.receiveData(this.in));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return;
+		}
+		Utilities.sendByte(CommBytes.ack, this.out);
+		
+		for (ServerMessage sm : messagesIn){
+			if (sm.getSender() == user.getID()){
+				this.mainServer.addMessage(sm);
+				Utilities.sendByte(CommBytes.success, this.out);
+			} else {
+				Utilities.sendByte(CommBytes.failure, this.out);
+			}
+		}
+	}
+	
+	private void sendMessage(User user) throws IOException {
+		// send ready byte
+		Utilities.sendByte(CommBytes.ready, this.out);
+		
+		// wait for ready byte in return
+		if (Utilities.receiveByte(this.in) != CommBytes.ready){
 			return;
 		}
 		
-		if (this.mainServer.addUser(toAdd)){
-			this.out.println(ServerAckMessage.success);
-		} else {
-			this.out.println(ServerAckMessage.failure);
+		//look for messages and send them;
+		ServerMessage[] outgoing = this.mainServer.checkForMessages(user.getID());
+		
+		for (ServerMessage sm : outgoing){
+			System.out.println("[OUTGOING] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: " + sm.getDate());
+		}
+		
+		Utilities.sendData(Utilities.serializeToByteArray(outgoing), this.out);
+		
+		//read ack byte;
+		if (Utilities.receiveByte(this.in) != CommBytes.ack){
+			return;
 		}
 	}
 
-	/**
-	 * Receives a message from client
-	 * @throws IOException
-	 */
-	public void receiveMessage(long uid) throws IOException {
-		this.out.println(ServerAckMessage.generalReady);
-
-		// gets and deserializes message
-		byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
-		ServerMessage newMessage = null;
-		try {
-			newMessage = (ServerMessage) Utilities.deserializeFromByteArray(messageIn);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		// make sure only sender is actually sending
-		if (newMessage.getSender() != uid){
-			newMessage = null;
-		}
-		
-		// adds message to server if necessary
-		String response = null;
-		if (newMessage != null){
-			if(this.mainServer.addMessage(newMessage)){
-				response = ServerAckMessage.success;
-			} else {
-				response = ServerAckMessage.failure;
-			}
-		} else {
-			response = ServerAckMessage.failure;
-		}
-		
-		// sends client success or failure
-		this.out.println(response);
-	}
-	
-	public void checkMessages(long uid) throws IOException{
-		// get messages to send
-		ServerMessage[] toRet = this.mainServer.checkForMessages(uid);
-		
-		//make sure client is ready
-		this.out.println(ServerAckMessage.readyToRecieve);
-		this.in.next(); // get acknowledgment
-		
-		//send messages
-		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(toRet), this.client.getOutputStream());
-	}
-	
 	/**
 	 * Get user from client
 	 * @return User session initiated with
@@ -242,7 +163,7 @@ public class RSAMessageServerWorker implements Runnable {
 		User curUser = null;
 		
 		//get data from stream
-		byte[] messageIn = shared.Utilities.receieveData(this.client.getInputStream());
+		byte[] messageIn = shared.Utilities.receiveData(this.client.getInputStream());
 		
 		try {
 			curUser = (User) Utilities.deserializeFromByteArray(messageIn);
@@ -251,13 +172,59 @@ public class RSAMessageServerWorker implements Runnable {
 			return null;
 		}	
 		return curUser;
+	}	
+	
+	private User authenticate(User readIn) throws IOException {
+		// let client know we're starting
+		Utilities.sendByte(CommBytes.ready, this.out);
+		
+		//auth process
+		System.out.println("Authenticated: " + readIn.getID());
+		
+		// send public key for test
+		while(Utilities.receiveByte(this.in) != CommBytes.ready);
+
+		//verifying identity with test
+		KeyPair kp = MakeKeys.generateKeys();	
+		RSAMessage test = new RSAMessage(new BigInteger(kp.getPub().getGroupSize().bitLength()/8, this.rng).toByteArray(), true);
+		RSAMessage testMes = test.encryptMessage(readIn.getPubKey());
+		Utilities.sendData(shared.Utilities.serializeToByteArray(kp.getPub()), this.out);
+	
+
+		while(Utilities.receiveByte(this.in) != CommBytes.ack);
+		
+		
+		// send test sequence
+		while(Utilities.receiveByte(this.in) != CommBytes.ready);
+		shared.Utilities.sendData(testMes.getMessage(), this.out);
+		while(Utilities.receiveByte(this.in) != CommBytes.ack);
+		
+		// read response
+		Utilities.sendByte(CommBytes.ready, this.out);
+		byte[] messageIn = Utilities.receiveData(this.in);
+		Utilities.sendByte(CommBytes.ack, this.out);
+		
+		// decrypt and check validity
+		RSAMessage retMessage = new RSAMessage(messageIn).decryptMessage(kp.getPriv());
+		BigInteger returned = new BigInteger(retMessage.getMessage());
+
+		if(returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)){
+			Utilities.sendByte(CommBytes.success, this.out);
+			return readIn;
+		} else {
+			Utilities.sendByte(CommBytes.failure, this.out);
+			return null;
+		}
 	}
+	
+	
 
 	/**
 	 * Close PrintWriter, Scanner, and Socket
 	 */
 	private void closeConnections() {
 		try {
+			Utilities.sendByte(CommBytes.hangup, this.out);
 			this.out.close();
 			this.in.close();
 			System.out.println("Client " +this.client.getInetAddress().getHostAddress() + " Disconnected");

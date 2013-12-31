@@ -9,6 +9,8 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -16,6 +18,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 
 import rsaEncrypt.KeyFile;
+import shared.CommBytes;
 import shared.ServerMessage;
 import shared.User;
 
@@ -135,31 +138,29 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 			return false;
 		}
 		
+		if (this.gui.getCurrentMessage().getRecipients().size() == 0){
+			return false;
+		}
+		
 		// get proper message
 		this.gui.getCurrentMessage().setMessage(this.gui.getMessageArea().getText());
 		ServerMessage[] toSend = this.gui.getCurrentMessage().toServerMessages();
 		
-		// Add user. FOR TEST PURPOSES ONLY //TODO
-		try {
-			ServerHandler.addUser(this.gui.getActiveProfile(), this.gui.getActiveServer());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.sendMessage(toSend, this.gui.getActiveProfile(), this.gui.getActiveServer());
 		
-		for (ServerMessage sm : toSend){
-			if(!this.sendMessage(sm, this.gui.getActiveProfile(), this.gui.getActiveServer())){
-				return false;
-			}
-		}
 		this.resetCompose();
 		
 		return true;
 	}
 	
-	private boolean sendMessage(ServerMessage toSend, UserProfile sender, ServerProfile server){
+	private boolean sendMessage(ServerMessage[] toSend, UserProfile sender, ServerProfile server){
+		// set up list of messages
+		List<ServerMessage> messages = Arrays.asList(toSend);
+		
 		boolean returnStatus = false;
 		try {
-			returnStatus = ServerHandler.sendMessage(sender, toSend, server);
+			returnStatus = ServerHandler.connectAndAct((byte) (CommBytes.addNewUser|CommBytes.sendMessage), 
+					this.gui.getActiveServer(), this.gui.getActiveProfile(), messages, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -168,15 +169,18 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		return returnStatus;
 	}
 	
+
 	public boolean receiveMessages(){
-		ServerMessage[] ret = null;
+		List<ServerMessage> ret = new ArrayList<ServerMessage>();
+		
 		try{
-			ret = ServerHandler.receiveMessages(this.gui.getActiveProfile(), this.gui.getActiveServer());
+			ServerHandler.connectAndAct((byte) (CommBytes.addNewUser|CommBytes.receiveMessage), 
+					this.gui.getActiveServer(), this.gui.getActiveProfile(), null, ret);
 		} catch (IOException e){
 			return false;
 		}
 		
-		if (ret == null) return false;
+		if (ret.size() == 0) return false;
 		
 		for (ServerMessage sm : ret){
 			this.gui.getInboxController().addOne(new InboxMessage(sm, this.contactManager));
@@ -268,14 +272,10 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	public void componentHidden(ComponentEvent arg0) {}
 
 	@Override
-	public void componentMoved(ComponentEvent arg0) {
-		//this.gui.getInboxController().resetTable();
-	}
+	public void componentMoved(ComponentEvent arg0) {}
 
 	@Override
-	public void componentResized(ComponentEvent arg0) {
-		//this.gui.getInboxController().resetColumnWidths();
-	}
+	public void componentResized(ComponentEvent arg0) {}
 
 	@Override
 	public void componentShown(ComponentEvent arg0) {}

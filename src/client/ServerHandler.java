@@ -1,310 +1,189 @@
 package client;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Scanner;
+import java.util.List;
 
 import rsaEncrypt.KeyFile;
+import shared.CommBytes;
 import shared.RSAMessage;
-import shared.ServerAckMessage;
 import shared.ServerMessage;
+import shared.Utilities;
 
+/**
+ * Interface for connecting with RSAEncryption Server of equal version
+ * 
+ * @author Chae Jubb
+ * @version 2.0
+ *
+ */
 public class ServerHandler {
-
-	public static boolean sendMessage(UserProfile user, ServerMessage toSendMes, ServerProfile server) throws IOException{
-		Socket socket = new Socket(server.getHostname(), server.getPort());
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		Scanner in = new Scanner(socket.getInputStream());
-		
-		//convert ServerMessage to Encrypted ServerMessage
-		RSAMessage toSend = new RSAMessage(toSendMes.getMessage(), true).
-				encryptMessage(new AddressBook(user.getAddressBook()).lookupByID(toSendMes.getRecipient()).getPubKey());
-		toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getRecipient(), toSend.getMessage());
-
-		while (!in.hasNext(ServerAckMessage.newUserCheck)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-		in.next(); // eat check
-		out.println("NO");
-
-		while (!in.hasNext(ServerAckMessage.readyForAuth)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		in.next(); // eat GOAUTH
-
-		// send user file
-		// socket.getOutputStream().write(shared.Utilities.serialize(user));
-		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(user.getMe()),
-				socket.getOutputStream());
-		
-		while (!in.hasNext(ServerAckMessage.userNotFound)
-				&& !in.hasNext(ServerAckMessage.userFound)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-		 
-
-		if (in.next().equals(ServerAckMessage.userNotFound)) {
-			System.err.println("USER NOT FOUND BY SERVER");
-			out.println("ACK");
-			return false;
-		} else {
-			// System.out.println("USER FOUND BY SERVER");
-			out.println("ACK");
-			// user found
-			// get server public key
-			 
-			byte[] messageIn = shared.Utilities.receieveData(socket
-					.getInputStream());
-			KeyFile kf;
-			try {
-				kf = (KeyFile) shared.Utilities.deserializeFromByteArray(messageIn);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				return false;
-			}
-			// System.out.println("N: " + kf.getGroupSize() + "; E: " +
-			// kf.getKey());
-			out.println("ACK");
-			// System.out.println("ACK-SENT");
-
-			// get test message
-			 
-			byte[] testIn = shared.Utilities.receieveData(socket
-					.getInputStream());
-			// testIn = shared.Utilities.trimByteArray(testIn);
-			// System.out.println("READ IN");
-			// kf = (KeyFile) shared.Utilities.deserialize(messageIn);
-
-			RSAMessage decMessage = new RSAMessage(testIn).decryptMessage(user.getKp().getPriv());
-			// printByteArray(decMessage.getMessage());
-			// System.out.println("DECRYPTED: " + new
-			// BigInteger(decMessage.getMessage()).toString());
-			RSAMessage sendBack = new RSAMessage(decMessage.getMessage(), true)
-					.encryptMessage(kf);
-			shared.Utilities.sendData(sendBack.getMessage(),
-					socket.getOutputStream());
-		}
-
-		while (!in.hasNext(ServerAckMessage.failure)
-				&& !in.hasNext(ServerAckMessage.success)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		if (in.next().equals(ServerAckMessage.failure)) {
-System.out.println("Authentication Failure");
-			out.println("ACK");
+	
+	public static boolean connectAndAct(byte action, ServerProfile server, UserProfile user, List<ServerMessage> messages, List<ServerMessage> messagesBack) throws IOException{
+		byte debug = -1;
+		// if no messages, we can't send anything.  Bad request
+		if (messages == null && (action & CommBytes.sendMessage) != 0){
 			return false;
 		}
-System.out.println("Successful Authentication");
-		while (!in.hasNext("GOACTION")) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		in.next(); // eat GOACTION
 		
-
-		// send message
-		out.println("SEND");
-
-		while (!in.hasNext("READY")) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		in.next(); // eat READY
-
-		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(toSendMes), socket.getOutputStream());
-		socket.getOutputStream().write(
-				shared.Utilities.serializeToByteArray(toSendMes));
-
-		String sendResponse = in.next();
-		System.out.println("sendResponse: " + sendResponse);
-		
-		return sendResponse.equals(ServerAckMessage.success);
-	}
-	
-	public static void addUser(UserProfile user, ServerProfile server) throws IOException {
-		Socket sock = new Socket(server.getHostname(), server.getPort());
-		PrintWriter output = new PrintWriter(sock.getOutputStream(), true);
-		Scanner input = new Scanner(sock.getInputStream());
-
-		// add user
-		input.next(); // newusercheck
-		output.println("YES"); // we are new user
-		input.next(); // ready get get new user
-		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(user.getMe()), sock.getOutputStream());
-		input.next(); // connection end marker
-		System.out.println("Add User successful");
-	}
-	
-	public static ServerMessage[] receiveMessages(UserProfile user, ServerProfile server) throws IOException {
+		// set up comm infrastructure
 		Socket socket = new Socket(server.getHostname(), server.getPort());
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		Scanner in = new Scanner(socket.getInputStream());
-
-		while (!in.hasNext(ServerAckMessage.newUserCheck)) {
-			if (in.hasNext()) {
-				in.next();
-			}
+		InputStream in = socket.getInputStream();
+		OutputStream out = socket.getOutputStream();
+		
+		// set up communication
+		if (Utilities.receiveByte(in) != CommBytes.ready){
+			closeConnection(socket);
+			return false;
 		}
-		in.next(); // eat check
-		out.println("NO");
-
-		while (!in.hasNext(ServerAckMessage.readyForAuth)) {
-			if (in.hasNext()) {
-				in.next();
-			}
+		Utilities.sendByte(CommBytes.ready, out);
+		if ((debug = Utilities.receiveByte(in)) != CommBytes.ack) {
+			System.out.println("OUT: " + debug);
+			closeConnection(socket);
+			return false;
 		}
-
-		in.next(); // eat GOAUTH
-
+		
+		// send action
+		if (Utilities.receiveByte(in) != CommBytes.ready){
+			closeConnection(socket);
+			return false;
+		}
+		Utilities.sendByte(action, out);
+		if (Utilities.receiveByte(in) != CommBytes.ack) {
+			closeConnection(socket);
+			return false;
+		}
+		
 		// send user file
-		// socket.getOutputStream().write(shared.Utilities.serialize(user));
-		shared.Utilities.sendData(shared.Utilities.serializeToByteArray(user.getMe()),
-				socket.getOutputStream());
+		if (Utilities.receiveByte(in) != CommBytes.ready){
+			closeConnection(socket);
+			return false;
+		}
+		Utilities.sendData(Utilities.serializeToByteArray(user.getMe()), out);
+		if (Utilities.receiveByte(in) != CommBytes.ack) {
+			closeConnection(socket);
+			return false;
+		}
 		
-		while (!in.hasNext(ServerAckMessage.userNotFound)
-				&& !in.hasNext(ServerAckMessage.userFound)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-		 
-
-		if (in.next().equals(ServerAckMessage.userNotFound)) {
-			System.err.println("USER NOT FOUND BY SERVER");
-			out.println("ACK");
-			return null;
-		} else {
-			// System.out.println("USER FOUND BY SERVER");
-			out.println("ACK");
-			// user found
-			// get server public key
-			
-			 // KeyFile kf; byte[] messageIn = new byte[1024*1024]; //1MB max
-			 //keysize socket.getInputStream().read(messageIn);
-			 // //System.out.println("IS READ"); messageIn =
-			 // shared.Utilities.trimByteArray(messageIn);
-			 
-			byte[] messageIn = shared.Utilities.receieveData(socket
-					.getInputStream());
-			KeyFile kf;
-			try {
-				kf = (KeyFile) shared.Utilities.deserializeFromByteArray(messageIn);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				return null;
-			}
-			// System.out.println("N: " + kf.getGroupSize() + "; E: " +
-			// kf.getKey());
-			out.println("ACK");
-			// System.out.println("ACK-SENT");
-
-			// get test message
-			
-			 //byte[] testIn = new byte[1024*1024]; //1MB max testMessage
-			 //socket.getInputStream().read(testIn);
-			 
-			byte[] testIn = shared.Utilities.receieveData(socket
-					.getInputStream());
-			// testIn = shared.Utilities.trimByteArray(testIn);
-			// System.out.println("READ IN");
-			// kf = (KeyFile) shared.Utilities.deserialize(messageIn);
-			RSAMessage decMessage = new RSAMessage(testIn).decryptMessage(user.getKp().getPriv());
-			// printByteArray(decMessage.getMessage());
-			// System.out.println("DECRYPTED: " + new
-			// BigInteger(decMessage.getMessage()).toString());
-			RSAMessage sendBack = new RSAMessage(decMessage.getMessage(), true)
-					.encryptMessage(kf);
-			shared.Utilities.sendData(sendBack.getMessage(),
-					socket.getOutputStream());
-		}
-
-		while (!in.hasNext(ServerAckMessage.failure)
-				&& !in.hasNext(ServerAckMessage.success)) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		if (in.next().equals(ServerAckMessage.failure)) {
-System.out.println("Authentication Failure");
-			out.println("ACK");
-			return null;
-		}
-System.out.println("Successfully authenticated");
-		while (!in.hasNext("GOACTION")) {
-			if (in.hasNext()) {
-				in.next();
-			}
-		}
-
-		in.next(); // eat GOACTION
-
-		// send message
-		out.println("RECEIVE");
-
 		
-		 //while (!in.next().equals(ServerAckMessage.readyToRecieve)) { if
-		 //(in.hasNext()) { System.out.println("IN LOOP: " + in.next()); } }
-		 
-
-		in.next(); // eat BEREADYTORECEIVE
-		out.println("ACK");
-		// read in
+		//do authentication		
+		if (Utilities.receiveByte(in) != CommBytes.ready){
+			closeConnection(socket);
+			return false;
+		}
+		Utilities.sendByte(CommBytes.ready, out);
+		byte[] messageIn = Utilities.receiveData(in);
+		Utilities.sendByte(CommBytes.ack, out);
 		
-		 //byte[] messagesInBytes = new byte[ServerMessage.MAX_SIZE];
-		 //socket.getInputStream().read(messagesInBytes);
-		 
-		ServerMessage[] messagesIn = null;// = (ServerMessage[])
-									// shared.Utilities.deserialize(socket.getInputStream());
+		// construct keyfile from data in
+		KeyFile kf;
 		try {
-			messagesIn = (ServerMessage[]) shared.Utilities.deserializeFromByteArray(shared.Utilities.receieveData(socket
-							.getInputStream()));
+			kf = (KeyFile) Utilities.deserializeFromByteArray(messageIn);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+			closeConnection(socket);
+			return false;
 		}
-		out.println("READY TO CLOSE");
 
-		in.next(); // acknowledge close
+		// receive test sequence
+		Utilities.sendByte(CommBytes.ready, out);
+		byte[] testIn = Utilities.receiveData(in);
+		Utilities.sendByte(CommBytes.ack, out);
 		
-		// close out connection
-		out.close();
-		in.close();
-		socket.close();
+		RSAMessage decMessage = new RSAMessage(testIn).decryptMessage(user.getKp().getPriv());
+		RSAMessage sendBack = new RSAMessage(decMessage.getMessage(), true).encryptMessage(kf);
 		
-		//convert encrypted messages to plaintext
-		if (messagesIn != null && messagesIn.length > 0){
-			ServerMessage[] toRet = new ServerMessage[messagesIn.length];
-			for (int i = 0; i < toRet.length; i++){
-				RSAMessage temp = new RSAMessage(messagesIn[i].getMessage()).decryptMessage(user.getKp().getPriv());
-				toRet[i] = new ServerMessage(messagesIn[i].getSender(), messagesIn[i].getRecipient(),
-						temp.getMessage(), messagesIn[i].getDate());
+		//send back response
+		if (Utilities.receiveByte(in) != CommBytes.ready){
+			closeConnection(socket);
+			return false;
+		}
+		Utilities.sendData(sendBack.getMessage(),out);
+		if (Utilities.receiveByte(in) != CommBytes.ack) {
+			closeConnection(socket);
+			return false;
+		}
+		
+		if (Utilities.receiveByte(in) != CommBytes.success){
+			closeConnection(socket);
+			return false;
+		}
+		
+		/* authenticated at this point */
+		
+		// send messages to server if requested
+		if ((action & CommBytes.sendMessage) != 0){
+			for (int i = 0; i < messages.size(); i++){
+				ServerMessage toSendMes = messages.get(i);
+				
+				RSAMessage toSend = new RSAMessage(toSendMes.getMessage(), true).
+						encryptMessage(new AddressBook(user.getAddressBook()).lookupByID(toSendMes.getRecipient()).getPubKey());
+				toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getRecipient(), toSend.getMessage());
+				
+				messages.set(i, toSendMes);
 			}
 			
-			messagesIn = toRet;
+			if (Utilities.receiveByte(in) != CommBytes.ready){
+				closeConnection(socket);
+				return false;
+			}
+			Utilities.sendData(Utilities.serializeToByteArray(messages.toArray(new ServerMessage[messages.size()])),out);
+			if (Utilities.receiveByte(in) != CommBytes.ack) {
+				closeConnection(socket);
+				return false;
+			}
+			int failCount = 0;
+			for (int i = 0; i < messages.size(); i++)
+				if (Utilities.receiveByte(in) == CommBytes.failure)
+					failCount++;
+			if (failCount > 0){
+				System.err.println(failCount + "messages failed to send.  Aborting.");
+				closeConnection(socket);
+				return false;
+			}
 		}
 		
-		/*System.out.println("Messages for " + user.getMe().getFirstName() + ": ");
-		int i = 0;
-		for (ServerMessage sm : messagesIn) {
-			System.out.println("MES " + i++ + ": "
-					+ new String(sm.getMessage()));
-		}*/
-		
-		return messagesIn;
+		//receive from server if requested
+		if ((action & CommBytes.receiveMessage) != 0){
+			// set up comm for this portion
+			if (Utilities.receiveByte(in) != CommBytes.ready){
+				closeConnection(socket);
+				return false;
+			}
+			Utilities.sendByte(CommBytes.ready, out);
+			
+			//read in messages
+			ServerMessage[] messagesIn;
+			try {
+				messagesIn = (ServerMessage[]) Utilities.deserializeFromByteArray(Utilities.receiveData(in));
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				closeConnection(socket);
+				return false;
+			}
+			Utilities.sendByte(CommBytes.ack, out);
+			
+			// decrypt messages
+			if (messagesIn != null && messagesIn.length > 0){
+				ServerMessage[] toRet = new ServerMessage[messagesIn.length];
+				for (int i = 0; i < toRet.length; i++){
+					RSAMessage temp = new RSAMessage(messagesIn[i].getMessage()).decryptMessage(user.getKp().getPriv());
+					messagesBack.add(new ServerMessage(messagesIn[i].getSender(), messagesIn[i].getRecipient(),
+							temp.getMessage(), messagesIn[i].getDate()));
+				}
+			}
+		}
+		return true;
+	}
+	
+	public static void closeConnection(Socket sock){
+		try {
+			sock.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return;
 	}
 }
