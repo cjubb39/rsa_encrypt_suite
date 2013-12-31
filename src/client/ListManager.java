@@ -8,16 +8,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import shared.TableData;
 
@@ -105,7 +111,7 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 
 	public void resetTable(){
 		this.dataTable.setModel(this.tableModel = new ListManagerTableMod<T>(this.data));
-		this.resetCellRenderers();
+		//this.resetCellRenderers();
 		this.resetColumnWidths();
 	}
 	

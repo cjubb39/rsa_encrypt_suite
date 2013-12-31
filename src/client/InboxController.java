@@ -6,6 +6,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -15,9 +17,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumnModel;
 
 public class InboxController extends ListManager<InboxMessage> {
 
@@ -72,8 +77,32 @@ public class InboxController extends ListManager<InboxMessage> {
 		this.list.add(this.scrollpane, BorderLayout.CENTER);
 
 		this.resetColumnWidths();
+		this.sortByDateColumn();
 		
 		return this.getData();
+	}
+	
+	@Override
+	public void resetTable(){
+		this.dataTable.setVisible(false);
+		super.resetTable();
+		this.sortByDateColumn();
+		this.dataTable.setVisible(true);
+	}
+	
+	private void sortByDateColumn(){
+		TableColumnModel colMod = this.dataTable.getColumnModel();
+		int dateColNum = -1;
+		for (int i = 0; i < colMod.getColumnCount(); i++){
+			if (colMod.getColumn(i).getHeaderValue().getClass() == new Date().getClass()){
+				dateColNum = i;
+			}
+		}
+	
+		dateColNum = 2; //TODO
+		List<RowSorter.SortKey> tmp = new CopyOnWriteArrayList<RowSorter.SortKey>();
+		tmp.add(new RowSorter.SortKey(dateColNum, SortOrder.DESCENDING));
+		this.dataTable.getRowSorter().setSortKeys(tmp);
 	}
 	
 	@Override
