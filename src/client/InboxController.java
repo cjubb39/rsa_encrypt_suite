@@ -130,17 +130,18 @@ public class InboxController extends ListManager<InboxMessage> {
 		//if (arg0.getValueIsAdjusting()) return;
 		
 		int index = 0;
-		
+		InboxMessage message;
 		try{
 			index = this.dataTable.getRowSorter().convertRowIndexToModel(
 					this.dataTable.getSelectionModel().getLeadSelectionIndex());
-		} catch (IndexOutOfBoundsException e){;
+			message = this.getData().get(index);
+		} catch (IndexOutOfBoundsException e){
 			this.fullMessageHeader.setText("");
 			this.fullMessageText.setText("");
 			this.fullMessage.revalidate();
+			return;
 		}
 		
-		InboxMessage message = this.getData().get(index);
 		this.fullMessageHeader.setText("From: " + message.sender + "    Date: " + message.date.toString());
 		this.fullMessageText.setText(message.message);
 		
