@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Timer;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -27,9 +28,12 @@ import javax.swing.JTable;
 
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+
+import shared.StateAutoSaver;
+
 import java.awt.GridLayout;
 
-public class RSAEncryptGUI {
+public class RSAEncryptGUI implements shared.Savable{
 
 	private RSAEncryptGUIController controller;
 	private JFrame mainGUI;
@@ -62,6 +66,8 @@ public class RSAEncryptGUI {
 	private InboxController inboxController;
 	private JMenuItem mntmSetActiveServer;
 	private JLabel curServerLabel;
+	
+	public static final long saveStateDelayMilli = 1000*60*15; // 15 minutes
 
 	/**
 	 * Create the application.
@@ -84,10 +90,12 @@ public class RSAEncryptGUI {
 		//once we're good to go, add shutdown hook to autosave on quit
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			public void run(){
-					saveProfile();
+					saveState();
 				}
 			}
 		);
+		
+		new Timer(true).schedule(new StateAutoSaver(this), saveStateDelayMilli, saveStateDelayMilli);
 	}
 
 	/**
@@ -277,6 +285,10 @@ public class RSAEncryptGUI {
 		if (this.getActiveProfile().getServers().size() > 0){
 			this.setActiveServer(this.getActiveProfile().getServers().get(0));
 		}
+	}
+	
+	public void saveState(){
+		this.saveProfile();
 	}
 	
 	protected void saveProfile(){

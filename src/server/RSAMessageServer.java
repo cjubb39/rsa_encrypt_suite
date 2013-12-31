@@ -26,7 +26,7 @@ import shared.*;
  * @version 1.0
  * 
  */
-public class RSAMessageServer {
+public class RSAMessageServer implements Savable{
 
 	public final static PrintStream realStdOut = System.out;
 	private ServerSocket serveSocket;
@@ -101,7 +101,7 @@ public class RSAMessageServer {
 	/**
 	 * Save message log and user database
 	 */
-	protected void saveState(){
+	public void saveState(){
 		try {
 			if (this.messageQueue != null){
 				RSAMessageServer.savePath.mkdirs();
