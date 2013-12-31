@@ -85,16 +85,15 @@ public class InboxController extends ListManager<InboxMessage> {
 		this.dataTable.setVisible(true);
 	}
 	
-	private void sortByDateColumn(){
-		TableColumnModel colMod = this.dataTable.getColumnModel();
+	private void sortByDateColumn(){;
 		int dateColNum = -1;
-		for (int i = 0; i < colMod.getColumnCount(); i++){
-			if (colMod.getColumn(i).getHeaderValue().getClass() == new Date().getClass()){
+		for (int i = 0; i < this.dataTable.getColumnModel().getColumnCount(); i++){
+			if (this.dataTable.getModel().getValueAt(0, i).getClass() == new Date().getClass()){
 				dateColNum = i;
+				break;
 			}
 		}
-	
-		dateColNum = 2; //TODO
+
 		List<RowSorter.SortKey> tmp = new CopyOnWriteArrayList<RowSorter.SortKey>();
 		tmp.add(new RowSorter.SortKey(dateColNum, SortOrder.DESCENDING));
 		this.dataTable.getRowSorter().setSortKeys(tmp);
