@@ -6,6 +6,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +22,8 @@ import javax.swing.JTextArea;
 import rsaEncrypt.KeyFile;
 import shared.CommBytes;
 import shared.ServerMessage;
-import shared.User;
 
-public class RSAEncryptGUIController implements ActionListener, WindowListener, ComponentListener {
+public class RSAEncryptGUIController implements ActionListener, WindowListener, ComponentListener, PropertyChangeListener {
 
 	private final RSAEncryptGUI gui;
 	private AddressBook contactManager;
@@ -33,8 +34,8 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	public RSAEncryptGUIController(RSAEncryptGUI gui){
 		this.gui = gui;
 		
-		this.contactManager = new AddressBook(new ArrayList<User>());
-		this.serverManager = new ServerList(new ArrayList<ServerProfile>());
+		this.contactManager = this.gui.getActiveProfile().getAddressBook();
+		this.serverManager = this.gui.getActiveProfile().getServers();
 		this.updateManagers();
 	}
 	
@@ -45,6 +46,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		
 		if(this.gui.getActiveProfile().getServers().getData() != this.serverManager.getData()){
 			this.serverManager = new ServerList(this.gui.getActiveProfile().getServers().getData());
+			this.serverManager.addPropertyChangeListener(this);
 		}
 	}
 	
@@ -72,7 +74,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		} else if (arg0.getSource().equals(this.gui.getViewContacts())){
 			this.contactManager.viewAll();
 		} else if (arg0.getSource().equals(this.gui.getAddServer())){
-			this.updateServerInfo(this.serverManager.addOne());
+			this.serverManager.addOne();
 		} else if (arg0.getSource().equals(this.gui.getViewServers())){
 			this.serverManager.viewAll();
 		} else if (arg0.getSource().equals(this.gui.getExportPublicKey())){
@@ -102,7 +104,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 				}
 			}).start();
 		} else if (arg0.getSource().equals(this.gui.getSetActiveServerButton())){
-			this.setActiveServer();
+			this.gui.getActiveProfile().setActiveServer();
 		}
 
 	}
@@ -111,16 +113,8 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		new AddRecipientsGUI(this.contactManager, this.gui.getCurrentMessage(), this.gui.getTxtRecipient());
 	}
 	
-	private void updateServerInfo(ArrayList<ServerProfile> sp){
-		this.gui.setActiveServer(sp.get(sp.size() - 1));
-	}
-	
 	private void updateAddressBookInfo(){
 		
-	}
-	
-	public void setActiveServer(){
-		new SelectActiveServerGUI(new ServerList(this.gui.getActiveProfile().getServers().getData()), this);
 	}
 	
 	private void clearMessage(JTextArea message){
@@ -146,7 +140,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		this.gui.getCurrentMessage().setMessage(this.gui.getMessageArea().getText());
 		ServerMessage[] toSend = this.gui.getCurrentMessage().toServerMessages();
 		
-		this.sendMessage(toSend, this.gui.getActiveProfile(), this.gui.getActiveServer());
+		this.sendMessage(toSend, this.gui.getActiveProfile(), this.gui.getActiveProfile().getActiveServer());
 		
 		this.resetCompose();
 		
@@ -160,7 +154,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		boolean returnStatus = false;
 		try {
 			returnStatus = ServerHandler.connectAndAct((byte) (CommBytes.addNewUser|CommBytes.sendMessage), 
-					this.gui.getActiveServer(), this.gui.getActiveProfile(), messages, null);
+					this.gui.getActiveProfile().getActiveServer(), this.gui.getActiveProfile(), messages, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -175,7 +169,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 		
 		try{
 			ServerHandler.connectAndAct((byte) (CommBytes.addNewUser|CommBytes.receiveMessage), 
-					this.gui.getActiveServer(), this.gui.getActiveProfile(), null, ret);
+					this.gui.getActiveProfile().getActiveServer(), this.gui.getActiveProfile(), null, ret);
 		} catch (IOException e){
 			return false;
 		}
@@ -213,7 +207,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	}
 	
 	public void setActiveServer(ServerProfile serv){
-		this.gui.setActiveServer(serv);
+		this.gui.getActiveProfile().setActiveServer(serv);
 	}
 	
 	public boolean startProgressBar(String message){
@@ -279,5 +273,12 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 
 	@Override
 	public void componentShown(ComponentEvent arg0) {}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getNewValue().getClass() == ServerProfile.class){
+			this.gui.updateActiveServerLabel();
+		}
+	}
 
 }

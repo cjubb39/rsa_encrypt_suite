@@ -3,6 +3,7 @@ package client;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -11,6 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 public class ServerList extends ListManager<ServerProfile> implements Serializable{
 
 	private static final long serialVersionUID = -129161519568833602L;
+	private volatile ServerProfile activeServer;
 
 	public ServerList(ArrayList<ServerProfile> data) {
 		super(data);
@@ -45,6 +47,10 @@ public class ServerList extends ListManager<ServerProfile> implements Serializab
 					continue;
 				}
 				this.getData().add(new ServerProfile(hostname.getText(), portNum, nickname.getText()));
+				
+				//set new active server
+				this.setActiveServer(this.getData().get(this.getData().size() - 1));
+				
 				finished = true;
 			} else {
 				finished = true;
@@ -55,8 +61,29 @@ public class ServerList extends ListManager<ServerProfile> implements Serializab
 	}
 	
 	public ArrayList<ServerProfile> addOne(ServerProfile in){
-		this.getData().add(in);		
+		this.getData().add(in);	
+		this.setActiveServer(in);
 		return this.getData();
+	}
+	
+	public void setActiveServer(){
+		new SelectActiveServerGUI(this);
+		this.fireActiveServerChange();
+	}
+	
+	public void setActiveServer(ServerProfile serv){
+		this.activeServer = serv;
+		 //move new active server to front so it persists
+		Collections.swap(this.getData(), this.getData().indexOf(serv), 0);
+		this.fireActiveServerChange();
+	}
+	
+	public void fireActiveServerChange(){
+		super.changes.firePropertyChange("ActiveServer", null, this.getActiveServer());
+	}
+	
+	public ServerProfile getActiveServer(){
+		return (this.activeServer != null) ? this.activeServer : new ServerProfile("",0,"No Active Server");
 	}
 
 	@Override
@@ -73,5 +100,4 @@ public class ServerList extends ListManager<ServerProfile> implements Serializab
 
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {}
-
 }

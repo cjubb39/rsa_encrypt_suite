@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +35,8 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	protected transient JTable dataTable;
 	protected transient JScrollPane scrollpane;
 	protected transient TableCellRenderer cellRenderer;
+	
+	protected PropertyChangeSupport changes = new PropertyChangeSupport(this);
 	
 	public ListManager(ArrayList<T> data){
 		this.data = data;
@@ -161,6 +165,14 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		}
 		
 		return toRet;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener l){
+		this.changes.addPropertyChangeListener(l);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener l){
+		this.changes.removePropertyChangeListener(l);
 	}
 	
 	public int size(){

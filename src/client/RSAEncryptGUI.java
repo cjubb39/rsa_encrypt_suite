@@ -1,17 +1,9 @@
 package client;
 
-import javax.swing.JFrame;
 import java.awt.BorderLayout;
-
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTabbedPane;
-import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,21 +12,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Timer;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTable;
-
-import javax.swing.JMenuItem;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
 
 import shared.StateAutoSaver;
 
-import java.awt.GridLayout;
-
-public class RSAEncryptGUI implements shared.Savable{
+public class RSAEncryptGUI implements shared.Savable {
 
 	private RSAEncryptGUIController controller;
 	private JFrame mainGUI;
@@ -48,7 +44,6 @@ public class RSAEncryptGUI implements shared.Savable{
 	
 	private ArrayList<UserProfile> profiles = null;
 	private volatile int activeProfileIndex;
-	private volatile ServerProfile activeServerProfile;
 	
 	public static final File profileSaveDir = new File("./data/client/");
 	public static final File profileSave = new File("./data/client/profiles.dat");
@@ -79,7 +74,6 @@ public class RSAEncryptGUI implements shared.Savable{
 		this.controller = new RSAEncryptGUIController(this);
 		this.initGUI();
 		
-		//this.getActiveProfile().getAddressBook().add(new User("Friend", "Uno", MakeKeys.generateKeys().getPub()));
 		this.controller.updateManagers();
 		
 		this.currentMessage = new ClientMessage(this.getActiveProfile().getMe());
@@ -98,6 +92,8 @@ public class RSAEncryptGUI implements shared.Savable{
 		);
 		
 		new Timer(true).schedule(new StateAutoSaver(this), saveStateDelayMilli, saveStateDelayMilli);
+		
+		this.getActiveProfile().getServers().addPropertyChangeListener(this.controller);
 	}
 
 	/**
@@ -130,7 +126,7 @@ public class RSAEncryptGUI implements shared.Savable{
 		headerPanel.add(this.progressBar, BorderLayout.EAST);
 		
 		this.curServerLabel = new JLabel();
-		this.curServerLabel.setText("    Current Server: " + this.getActiveServer());
+		this.curServerLabel.setText("    Current Server: " + this.getActiveProfile().getServers().getActiveServer());
 		headerPanel.add(this.curServerLabel, BorderLayout.CENTER);
 		
 		headerPanel.setPreferredSize(new Dimension((int) headerPanel.getPreferredSize().getWidth(), 
@@ -298,7 +294,7 @@ public class RSAEncryptGUI implements shared.Savable{
 		//set active profile
 		this.activeProfileIndex = 0;
 		if (this.getActiveProfile().getServers().size() > 0){
-			this.setActiveServer(this.getActiveProfile().getServers().getData().get(0));
+			this.getActiveProfile().getServers().setActiveServer(this.getActiveProfile().getServers().getData().get(0));
 		}
 	}
 	
@@ -323,19 +319,10 @@ public class RSAEncryptGUI implements shared.Savable{
 		}
 	}
 	
-	public ServerProfile getActiveServer(){
-		return (this.activeServerProfile != null) ? this.activeServerProfile : new ServerProfile("",0,"No Active Server");
-	}
-	
-	public void setActiveServer(ServerProfile serv){
-		this.activeServerProfile = serv;
+	public void updateActiveServerLabel(){
 		try{
-			this.curServerLabel.setText("    Current Server: " + this.getActiveServer());
+			this.curServerLabel.setText("    Current Server: " + this.getActiveProfile().getActiveServer());
 		} catch (Exception e){}
-		
-		 //move new active server to front so it persists
-		ArrayList<ServerProfile> temp = this.getActiveProfile().getServers().getData();
-		Collections.swap(temp, temp.indexOf(serv), 0);
 	}
 	
 	public ClientMessage resetCurrentMessage(){
