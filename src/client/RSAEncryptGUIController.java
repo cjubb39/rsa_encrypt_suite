@@ -39,12 +39,12 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	}
 	
 	public void updateManagers(){
-		if(this.gui.getActiveProfile().getAddressBook() != this.contactManager.getData()){
-			this.contactManager = new AddressBook(this.gui.getActiveProfile().getAddressBook());
+		if(this.gui.getActiveProfile().getAddressBook().getData() != this.contactManager.getData()){
+			this.contactManager = new AddressBook(this.gui.getActiveProfile().getAddressBook().getData());
 		}
 		
-		if(this.gui.getActiveProfile().getServers() != this.serverManager.getData()){
-			this.serverManager = new ServerList(this.gui.getActiveProfile().getServers());
+		if(this.gui.getActiveProfile().getServers().getData() != this.serverManager.getData()){
+			this.serverManager = new ServerList(this.gui.getActiveProfile().getServers().getData());
 		}
 	}
 	
@@ -120,7 +120,7 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	}
 	
 	public void setActiveServer(){
-		new SelectActiveServerGUI(new ServerList(this.gui.getActiveProfile().getServers()), this);
+		new SelectActiveServerGUI(new ServerList(this.gui.getActiveProfile().getServers().getData()), this);
 	}
 	
 	private void clearMessage(JTextArea message){

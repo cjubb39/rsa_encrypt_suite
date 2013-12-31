@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -21,21 +22,26 @@ import javax.swing.table.TableColumn;
 
 import shared.TableData;
 
-public abstract class ListManager<T extends TableData> implements ActionListener, ListSelectionListener{
+public abstract class ListManager<T extends TableData> implements ActionListener, ListSelectionListener, Serializable {
 	
+	private static final long serialVersionUID = -4760443860661592550L;
 	private ArrayList<T> data;
-	protected ListManagerTableMod<T> tableModel;
+	protected transient ListManagerTableMod<T> tableModel;
 	
-	private JButton viewAddButton, viewExitButton, deleteButton;
-	private JFrame mainGUI;
-	protected JTable dataTable;
-	protected JScrollPane scrollpane;
-	protected TableCellRenderer cellRenderer;
+	private transient JButton viewAddButton, viewExitButton, deleteButton;
+	private transient JFrame mainGUI;
+	protected transient JTable dataTable;
+	protected transient JScrollPane scrollpane;
+	protected transient TableCellRenderer cellRenderer;
 	
 	public ListManager(ArrayList<T> data){
 		this.data = data;
 		this.tableModel = new ListManagerTableMod<T>(data);
 		this.cellRenderer = new client.TableCellRenderer();
+	}
+	
+	public ListManager(){
+		this(new ArrayList<T>());
 	}
 	
 	public abstract ArrayList<T> addOne();
@@ -155,6 +161,10 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		}
 		
 		return toRet;
+	}
+	
+	public int size(){
+		return this.data.size();
 	}
 	
 	public ArrayList<T> getData(){

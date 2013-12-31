@@ -118,9 +118,7 @@ public class ServerHandler {
 			for (int i = 0; i < messages.size(); i++){
 				ServerMessage toSendMes = messages.get(i);
 				
-				RSAMessage toSend = new RSAMessage(toSendMes.getMessage(), true).
-						encryptMessage(new AddressBook(user.getAddressBook()).lookupByID(toSendMes.getRecipient()).getPubKey());
-				toSendMes = new ServerMessage(toSendMes.getSender(), toSendMes.getRecipient(), toSend.getMessage());
+				toSendMes = toSendMes.encryptMessage(user.getAddressBook().lookupByID(toSendMes.getRecipient()).getPubKey());
 				
 				messages.set(i, toSendMes);
 			}
@@ -167,11 +165,8 @@ public class ServerHandler {
 			
 			// decrypt messages
 			if (messagesIn != null && messagesIn.length > 0){
-				ServerMessage[] toRet = new ServerMessage[messagesIn.length];
-				for (int i = 0; i < toRet.length; i++){
-					RSAMessage temp = new RSAMessage(messagesIn[i].getMessage()).decryptMessage(user.getKp().getPriv());
-					messagesBack.add(new ServerMessage(messagesIn[i].getSender(), messagesIn[i].getRecipient(),
-							temp.getMessage(), messagesIn[i].getDate()));
+				for (int i = 0; i < messagesIn.length; i++){
+					messagesBack.add(messagesIn[i].decryptMessage(user.getKp().getPriv()));
 				}
 			}
 		}

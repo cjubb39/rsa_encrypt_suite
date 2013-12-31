@@ -298,7 +298,7 @@ public class RSAEncryptGUI implements shared.Savable{
 		//set active profile
 		this.activeProfileIndex = 0;
 		if (this.getActiveProfile().getServers().size() > 0){
-			this.setActiveServer(this.getActiveProfile().getServers().get(0));
+			this.setActiveServer(this.getActiveProfile().getServers().getData().get(0));
 		}
 	}
 	
@@ -334,7 +334,7 @@ public class RSAEncryptGUI implements shared.Savable{
 		} catch (Exception e){}
 		
 		 //move new active server to front so it persists
-		ArrayList<ServerProfile> temp = this.getActiveProfile().getServers();
+		ArrayList<ServerProfile> temp = this.getActiveProfile().getServers().getData();
 		Collections.swap(temp, temp.indexOf(serv), 0);
 	}
 	

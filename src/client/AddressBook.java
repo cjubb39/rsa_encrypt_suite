@@ -3,6 +3,7 @@ package client;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -14,14 +15,19 @@ import javax.swing.event.ListSelectionEvent;
 import rsaEncrypt.KeyFile;
 import shared.User;
 
-public class AddressBook extends ListManager<User>{
+public class AddressBook extends ListManager<User> implements Serializable{
 
-	private JButton addOpenButton;
-	private File keyFileLocation;
+	private static final long serialVersionUID = 117178744478130464L;
+	private transient JButton addOpenButton;
+	private transient File keyFileLocation;
 	private transient final static JFileChooser fc = new JFileChooser(new File("./"));
 	
 	public AddressBook(ArrayList<User> data) {
 		super(data);
+	}
+	
+	public AddressBook(){
+		super();
 	}
 
 	@Override

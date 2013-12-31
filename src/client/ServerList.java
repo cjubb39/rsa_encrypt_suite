@@ -1,18 +1,25 @@
 package client;
 
 import java.awt.event.ActionEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 
-public class ServerList extends ListManager<ServerProfile> {
+public class ServerList extends ListManager<ServerProfile> implements Serializable{
+
+	private static final long serialVersionUID = -129161519568833602L;
 
 	public ServerList(ArrayList<ServerProfile> data) {
 		super(data);
 	}
 
+	public ServerList(){
+		super();
+	}
+	
 	@Override
 	public ArrayList<ServerProfile> addOne() {
 		JTextField hostname = new JTextField(), port = new JTextField(), nickname = new JTextField();

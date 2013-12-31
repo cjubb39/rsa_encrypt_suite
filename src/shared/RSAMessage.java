@@ -1,5 +1,6 @@
 package shared;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -13,15 +14,14 @@ import rsaEncrypt.KeyFile;
  * @version 1.0
  *
  */
-public class RSAMessage {
+public class RSAMessage implements Serializable {
 
-	//public static final int chunkSize = 8;
-	public static final String charSet = "UTF-8";
-	public static final int MAX_MESSAGE_SIZE = ServerMessage.MAX_SIZE; //16MB
+	private static final long serialVersionUID = 8967541811335342735L;
+	public static final int MAX_MESSAGE_SIZE = 1024 * 1024 * 16; //16MB
 	public static final byte readChunkSize = 8;
 	
 	private byte[] message;
-	private final Random rng;
+	private transient final Random rng;
 	
 	/**
 	 * Constructors 
@@ -44,7 +44,7 @@ public class RSAMessage {
 	}
 	
 	public RSAMessage(String in, boolean align){
-		this(in.getBytes(), false);
+		this(in.getBytes(), true);
 	}
 	
 	public RSAMessage(String in){

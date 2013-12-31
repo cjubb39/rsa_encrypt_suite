@@ -20,6 +20,7 @@ import javax.swing.event.ListSelectionEvent;
 
 public class InboxController extends ListManager<InboxMessage> {
 
+	private static final long serialVersionUID = -5752149128185697360L;
 	private JPanel list, fullMessage;
 	private JMenuItem deleteSelected;
 	private JLabel fullMessageHeader;
@@ -85,17 +86,19 @@ public class InboxController extends ListManager<InboxMessage> {
 	}
 	
 	private void sortByDateColumn(){;
-		int dateColNum = -1;
-		for (int i = 0; i < this.dataTable.getColumnModel().getColumnCount(); i++){
-			if (this.dataTable.getModel().getValueAt(0, i).getClass() == new Date().getClass()){
-				dateColNum = i;
-				break;
+		if (this.getData().size() > 0){
+			int dateColNum = -1;
+			for (int i = 0; i < this.dataTable.getColumnModel().getColumnCount(); i++){
+				if (this.dataTable.getModel().getValueAt(0, i).getClass() == new Date().getClass()){
+					dateColNum = i;
+					break;
+				}
 			}
+	
+			List<RowSorter.SortKey> tmp = new CopyOnWriteArrayList<RowSorter.SortKey>();
+			tmp.add(new RowSorter.SortKey(dateColNum, SortOrder.DESCENDING));
+			this.dataTable.getRowSorter().setSortKeys(tmp);
 		}
-
-		List<RowSorter.SortKey> tmp = new CopyOnWriteArrayList<RowSorter.SortKey>();
-		tmp.add(new RowSorter.SortKey(dateColNum, SortOrder.DESCENDING));
-		this.dataTable.getRowSorter().setSortKeys(tmp);
 	}
 	
 	@Override
@@ -119,7 +122,6 @@ public class InboxController extends ListManager<InboxMessage> {
 
 	@Override
 	public void valueChanged(ListSelectionEvent arg0) {	
-		//if (arg0.getValueIsAdjusting()) return;
 		
 		int index = 0;
 		InboxMessage message;
