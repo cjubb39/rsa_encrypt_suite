@@ -44,7 +44,7 @@ public class RSAMessage implements Serializable {
 	}
 	
 	public RSAMessage(String in, boolean align){
-		this(in.getBytes(), true);
+		this(in.getBytes(), align);
 	}
 	
 	public RSAMessage(String in){
@@ -56,7 +56,7 @@ public class RSAMessage implements Serializable {
 	}
 	
 	public RSAMessage(byte[] in){
-		this(in, false);
+		this(in, true);
 	}
 	
 	/**

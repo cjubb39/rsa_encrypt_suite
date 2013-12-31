@@ -129,6 +129,10 @@ public class RSAEncryptGUI implements shared.Savable{
 		this.progressBar.setStringPainted(true);
 		headerPanel.add(this.progressBar, BorderLayout.EAST);
 		
+		this.curServerLabel = new JLabel();
+		this.curServerLabel.setText("    Current Server: " + this.getActiveServer());
+		headerPanel.add(this.curServerLabel, BorderLayout.CENTER);
+		
 		headerPanel.setPreferredSize(new Dimension((int) headerPanel.getPreferredSize().getWidth(), 
 				(int) (this.progressBar.getPreferredSize().getHeight() * 1.25)));
 		this.mainGUI.getContentPane().add(headerPanel, BorderLayout.NORTH);
@@ -172,10 +176,6 @@ public class RSAEncryptGUI implements shared.Savable{
 		this.btnSend = new JButton("Send");
 		this.btnSend.addActionListener(this.controller);
 		compButPanel.add(this.btnSend);
-		
-		this.curServerLabel = new JLabel();
-		this.curServerLabel.setText("Server: " + this.getActiveServer());
-		compButPanel.add(this.curServerLabel);
 		
 		this.btnClear = new JButton("Clear");
 		this.btnClear.addActionListener(this.controller);
@@ -330,7 +330,7 @@ public class RSAEncryptGUI implements shared.Savable{
 	public void setActiveServer(ServerProfile serv){
 		this.activeServerProfile = serv;
 		try{
-			this.curServerLabel.setText("Server: " + this.getActiveServer());
+			this.curServerLabel.setText("    Current Server: " + this.getActiveServer());
 		} catch (Exception e){}
 		
 		 //move new active server to front so it persists

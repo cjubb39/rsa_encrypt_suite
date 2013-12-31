@@ -121,11 +121,14 @@ public class RSAMessageServerWorker implements Runnable {
 		Utilities.sendByte(CommBytes.ack, this.out);
 		
 		for (ServerMessage sm : messagesIn){
+			System.out.print("[INCOMING] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: " + sm.getDate());
 			if (sm.getSender() == user.getID()){
 				this.mainServer.addMessage(sm);
 				Utilities.sendByte(CommBytes.success, this.out);
+				System.out.println(" [PASS]");
 			} else {
 				Utilities.sendByte(CommBytes.failure, this.out);
+				System.out.println(" [FAIL]");
 			}
 		}
 	}
@@ -178,9 +181,6 @@ public class RSAMessageServerWorker implements Runnable {
 		// let client know we're starting
 		Utilities.sendByte(CommBytes.ready, this.out);
 		
-		//auth process
-		System.out.println("Authenticated: " + readIn.getID());
-		
 		// send public key for test
 		while(Utilities.receiveByte(this.in) != CommBytes.ready);
 
@@ -210,6 +210,7 @@ public class RSAMessageServerWorker implements Runnable {
 
 		if(returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)){
 			Utilities.sendByte(CommBytes.success, this.out);
+			System.out.println("Authenticated: " + readIn.getID());
 			return readIn;
 		} else {
 			Utilities.sendByte(CommBytes.failure, this.out);
