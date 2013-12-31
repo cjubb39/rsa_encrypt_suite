@@ -7,6 +7,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JButton;
 import java.awt.Dimension;
@@ -43,6 +44,7 @@ public class RSAEncryptGUI implements shared.Savable{
 	private JTextArea messageArea;
 	private JMenuItem mntmExit;
 	private JLabel lblGreeting;
+	private JProgressBar progressBar;
 	
 	private ArrayList<UserProfile> profiles = null;
 	private volatile int activeProfileIndex;
@@ -113,6 +115,24 @@ public class RSAEncryptGUI implements shared.Savable{
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		this.mainGUI.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
+		// create header panel
+		JPanel headerPanel = new JPanel();
+		headerPanel.setLayout(new BorderLayout());
+		
+		this.lblGreeting = new JLabel("Greetings");
+		//this.lblGreeting.setBorder(new EmptyBorder(10, 10, 10, 10));
+		this.lblGreeting.setText("Hello, " + this.profiles.get(0).getMe().getFirstName() + "!");
+		headerPanel.add(this.lblGreeting, BorderLayout.WEST);
+		
+		this.progressBar = new JProgressBar();
+		this.progressBar.setVisible(false);
+		this.progressBar.setStringPainted(true);
+		headerPanel.add(this.progressBar, BorderLayout.EAST);
+		
+		headerPanel.setPreferredSize(new Dimension((int) headerPanel.getPreferredSize().getWidth(), 
+				(int) (this.progressBar.getPreferredSize().getHeight() * 1.25)));
+		this.mainGUI.getContentPane().add(headerPanel, BorderLayout.NORTH);
+		
 		// create inbox panel
 		JPanel inboxPanelFull = new JPanel();
 		tabbedPane.addTab("Inbox", null, inboxPanelFull, null);
@@ -125,11 +145,6 @@ public class RSAEncryptGUI implements shared.Savable{
 		this.messagePanel = new JPanel();
 		this.messagePanel.setLayout(new BorderLayout());
 		inboxPanelFull.add(this.messagePanel);
-		
-		this.lblGreeting = new JLabel("Greetings");
-		//this.lblGreeting.setBorder(new EmptyBorder(10, 10, 10, 10));
-		this.lblGreeting.setText("Hello, " + this.profiles.get(0).getMe().getFirstName() + "!");
-		this.inboxPanel.add(this.lblGreeting, BorderLayout.NORTH);
 		
 		// create compose panel
 		JPanel composePanel = new JPanel();
@@ -413,5 +428,9 @@ public class RSAEncryptGUI implements shared.Savable{
 	
 	public JMenuItem getSetActiveServerButton(){
 		return this.mntmSetActiveServer;
+	}
+	
+	public JProgressBar getProgressBar(){
+		return this.progressBar;
 	}
 }

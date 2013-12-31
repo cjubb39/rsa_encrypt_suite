@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 
 import rsaEncrypt.KeyFile;
@@ -46,14 +47,20 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		JTextArea messageArea = this.gui.getMessageArea();
+		final JTextArea messageArea = this.gui.getMessageArea();
 		
 		this.updateManagers();
 		
 		if (arg0.getSource().equals(this.gui.getClearButton())){
 			this.clearMessage(messageArea);
 		} else if (arg0.getSource().equals(this.gui.getSendButton())){
-			this.prepareAndSendMessage(messageArea);
+			(new Thread(){
+				public void run(){
+					startProgressBar("Sending Message");
+					prepareAndSendMessage(messageArea);
+					stopProgressBar();
+				}
+			}).start();
 		} else if (arg0.getSource().equals(this.gui.getExitButton())){
 			this.exitSequence();
 		} else if (arg0.getSource().equals(this.gui.getAddContact())){
@@ -84,7 +91,13 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 			this.addRecipientToCurrentMessage();
 		}
 		else if(arg0.getSource().equals(this.gui.getReceiveMessagesButton())){
-			this.receiveMessages();
+			(new Thread(){
+				public void run(){
+					startProgressBar("Checking Messages");
+					receiveMessages();
+					stopProgressBar();
+				}
+			}).start();
 		} else if (arg0.getSource().equals(this.gui.getSetActiveServerButton())){
 			this.setActiveServer();
 		}
@@ -197,6 +210,34 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 	
 	public void setActiveServer(ServerProfile serv){
 		this.gui.setActiveServer(serv);
+	}
+	
+	public boolean startProgressBar(String message){
+		JProgressBar progress = this.gui.getProgressBar();
+		if (progress.isVisible()){
+			return false;
+		} else {
+			progress.setIndeterminate(true);
+			progress.setString(message);
+			progress.setVisible(true);
+		 	return true;
+		}
+	}
+	
+	public boolean startProgressBar(){
+		return this.startProgressBar("Working...");
+	}
+	
+	public boolean stopProgressBar(){
+		JProgressBar progress = this.gui.getProgressBar();
+		if (progress.isVisible()){
+			progress.setString("");
+			progress.setIndeterminate(false);
+			progress.setVisible(false);
+		 	return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
