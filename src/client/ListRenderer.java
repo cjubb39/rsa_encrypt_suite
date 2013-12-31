@@ -1,14 +1,10 @@
 package client;
 
 import java.awt.Component;
-import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JTextArea;
-import javax.swing.ListCellRenderer;
 
 public class ListRenderer extends DefaultListCellRenderer{
 
