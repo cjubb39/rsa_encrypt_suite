@@ -3,11 +3,9 @@ package client;
 public class RSAEncryptClientMain {
 
 	/**
-	 * @param args
+	 * Main method to launch RSAEncryptGUI
 	 */
-	public static void main(String[] args) {
-		new RSAEncryptGUI();
-
+	public static void main(String[] args){
+		new client.primary.RSAEncryptGUI();
 	}
-
 }
