@@ -1,4 +1,4 @@
-package shared.message;
+package rsaEncrypt.message;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -31,7 +31,7 @@ public class RSAMessage implements Serializable {
 	 *          Byte array to wrap
 	 * @param align
 	 *          True causes byte array to be multiple of
-	 *          {@link shared.message.RSAMessage.readChunkSize}.
+	 *          {@link rsaEncrypt.message.RSAMessage#readChunkSize}.
 	 */
 	public RSAMessage(byte[] in, boolean align){
 		this.message = in;
@@ -55,7 +55,7 @@ public class RSAMessage implements Serializable {
 	 *          String to wrap (converted to byte array)
 	 * @param align
 	 *          True causes byte array to be multiple of
-	 *          {@link shared.message.RSAMessage.readChunkSize}.
+	 *          {@link rsaEncrypt.message.RSAMessage#readChunkSize}.
 	 */
 	public RSAMessage(String in, boolean align){
 		this(in.getBytes(), align);

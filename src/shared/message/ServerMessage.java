@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import rsaEncrypt.key.KeyFile;
+import rsaEncrypt.message.RSAMessage;
 import shared.User;
 
 /**
@@ -87,10 +88,6 @@ public class ServerMessage extends RSAMessage implements Serializable {
 	 *          UserID of recipient
 	 * @param message
 	 *          Message as byte array. May be encrypted or not.
-	 * @param date
-	 *          Date of message
-	 * @param align
-	 *          Messages aligns to read-chunk if true; does not necessarily otherwise
 	 */
 	public ServerMessage(long sender, long recipient, byte[] message){
 		this(sender, recipient, message, new Date());
@@ -114,7 +111,7 @@ public class ServerMessage extends RSAMessage implements Serializable {
 	 * @param key
 	 *          Keyfile to encrypt with
 	 * @return Encrypted message. Non-mutable method: does not change this.
-	 * @see shared.message.RSAMessage#encryptMessage(rsaEncrypt.key.KeyFile)
+	 * @see rsaEncrypt.message.RSAMessage#encryptMessage(rsaEncrypt.key.KeyFile)
 	 */
 	public ServerMessage encryptMessage(KeyFile key){
 		return new ServerMessage(this.getSender(), this.getRecipient(), super.encryptMessage(key)
@@ -125,7 +122,7 @@ public class ServerMessage extends RSAMessage implements Serializable {
 	 * @param key
 	 *          Keyfile to decrypt with
 	 * @return Decrypted message. Non-mutable method: does not change this.
-	 * @see shared.message.RSAMessage#decryptMessage(rsaEncrypt.key.KeyFile)
+	 * @see rsaEncrypt.message.RSAMessage#decryptMessage(rsaEncrypt.key.KeyFile)
 	 */
 	public ServerMessage decryptMessage(KeyFile key){
 		return new ServerMessage(this.getSender(), this.getRecipient(), super.decryptMessage(key)

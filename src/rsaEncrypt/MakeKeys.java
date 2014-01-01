@@ -7,7 +7,7 @@ import rsaEncrypt.key.KeyFile;
 import rsaEncrypt.key.KeyPair;
 
 /**
- * {@link rsaEncrypt.Makekeys} is designed to randomly generate two RSA keys, one private
+ * {@link rsaEncrypt.MakeKeys} is designed to randomly generate two RSA keys, one private
  * and one public. These key files are named based on the first input argument as
  * {arg1}.private and {arg1}.public. The algorithm used to pick primes is probabilistic,
  * yet by tuning a parameter, we are able to make the probability of a false positive near

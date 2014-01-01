@@ -1,0 +1,96 @@
+<project name="rsa_encrypt_suite">
+
+	<property name="srcDir" value="src/"/>
+	<property name="docDir" value="doc/"/>
+	<property name="binDir" value="bin/"/>
+	<property name="classDir" value="${binDir}/classes"/>
+	<property name="jarDir" value="${binDir}/jar"/>
+	<property name="serverjar" value="RSAESserver.jar"/>
+	<property name="clientjar" value="RSAESclient.jar"/>
+	<property name="rsajar" value="rsaEncrypt.jar"/>
+
+	<target name="clean">
+		<delete dir="${binDir}"/>
+		<delete dir="${docDir}"/>
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classDir}"/>
+		<javac srcdir="${srcDir}"
+			destdir="${classDir}"
+			source="1.6"
+			target="1.6"
+			includeantruntime="false"
+		/>
+	</target>
+
+	<target name="jar" depends="serverjar,clientjar,rsajar">
+	</target>
+
+	<target name="serverjar" depends="compile,rsajar">
+		<mkdir dir="${jarDir}"/>
+		<jar destfile="${jarDir}/${serverjar}"
+			basedir="${classDir}"
+			includes="server/**, shared/**"
+		>
+			<zipgroupfileset dir="${jarDir}" includes="${rsajar}"/>
+			<manifest>
+				<attribute name="Main-Class" value="server.RSAMessageServerMain"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clientjar" depends="compile,rsajar">
+		<mkdir dir="${jarDir}"/>
+		<jar destfile="${jarDir}/${clientjar}"
+			basedir="${classDir}"
+			includes="client/**,shared/**"
+		>
+			<zipgroupfileset dir="${jarDir}" includes="${rsajar}"/>
+			<manifest>
+				<attribute name="Main-Class" value="client.RSAEncryptClientMain"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="rsajar" depends="compile">
+		<mkdir dir="${jarDir}"/>
+		<jar destfile="${jarDir}/${rsajar}"
+			basedir="${classDir}"
+			includes="rsaEncrypt/**"
+		>
+			<manifest/>
+		</jar>
+	</target>
+
+	<target name="runServer" depends="serverjar">
+		<java jar="${jarDir}/RSAESserver.jar" fork="true">
+			<arg value="${arg0}"/>
+		</java>
+	</target>
+
+	<target name="runClient" depends="clientjar">
+		<java jar="${jarDir}/RSAESclient.jar" fork="true">
+		</java>
+	</target>
+
+	<target name="doc">
+    <javadoc access="protected"
+    	author="true"
+    	classpath="."
+    	destdir="${docDir}"
+    	nodeprecated="false"
+    	nodeprecatedlist="false"
+    	noindex="false"
+    	nonavbar="false"
+    	notree="false"
+    	packagenames="client.table.aux,client.server,rsaEncrypt,server.primary,client,shared.serverComm,rsaEncrypt.key,server,client.table,client.message,shared.message,client.table.gui,client.primary,shared"
+    	source="1.6"
+    	sourcepath="${srcDir}"
+    	splitindex="true"
+    	use="true"
+    	version="true"
+    />
+   </target>
+
+</project>

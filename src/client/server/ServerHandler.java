@@ -7,8 +7,8 @@ import java.net.Socket;
 import java.util.List;
 
 import rsaEncrypt.key.KeyFile;
+import rsaEncrypt.message.RSAMessage;
 import shared.Utilities;
-import shared.message.RSAMessage;
 import shared.message.ServerMessage;
 import shared.serverComm.CommBytes;
 import client.primary.UserProfile;

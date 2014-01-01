@@ -3,8 +3,9 @@ package shared.serverComm;
 /**
  * Collection of bytes used by server communication.
  * 
- * {@link receiveMessage}, {@link sendMessage}, and {@link addNewUser} may be all sent
- * simultaneously by bitwise ORing the desired operations.
+ * {@link shared.serverComm#receiveMessage}, {@link shared.serverComm#sendMessage}, and
+ * {@link shared.serverComm#addNewUser} may be all sent simultaneously by bitwise ORing
+ * the desired operations.
  * 
  * Other bytes are simply sent as single bytes.
  * 

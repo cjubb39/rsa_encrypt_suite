@@ -9,9 +9,9 @@ import java.util.Random;
 
 import rsaEncrypt.MakeKeys;
 import rsaEncrypt.key.KeyPair;
+import rsaEncrypt.message.RSAMessage;
 import shared.User;
 import shared.Utilities;
-import shared.message.RSAMessage;
 import shared.message.ServerMessage;
 import shared.serverComm.CommBytes;
 

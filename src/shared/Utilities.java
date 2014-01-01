@@ -65,8 +65,7 @@ public final class Utilities {
 	 * 
 	 * @param obj
 	 *          Object to serialize
-	 * @param file
-	 *          File to write object to
+	 * @return Serialized object as byte array
 	 * @throws IOException
 	 *           Writing to byteArray
 	 */

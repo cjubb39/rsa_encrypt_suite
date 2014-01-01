@@ -24,7 +24,7 @@ public final class Utilities {
 	 * @param test
 	 *          Number to test
 	 * @return False if composite. True if probably prime. The probability of a false
-	 *         positive is related to {@link Utilities.primalityParam}.
+	 *         positive is related to {@link Utilities#primalityParam}.
 	 */
 	public static boolean isPrime(int test){
 		int s = 0, d = test - 1;
