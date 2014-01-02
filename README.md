@@ -48,12 +48,12 @@ Because the user ID used to store messages on the server depends only on the use
 
 ## RSA Implementation Details
 The security is based upon the following implementation of the RSA algorithm.  Encryption is done as follows:
-1. The message is converted to a byte array.
-2. The message is split into chunks of size specified by _RSAMessage#readChunkSize_ [here](../master/src/rsaEncrypt/message/RSAMessage.java)
-3. A random bit string is generated.
-4. The message chunk `xor` random bit string is encrypted using the given keyfile
-5. The random bit string is written to the encrypted message, preceded by the original byte length.  The encrypted bit string is written to the encrypted message, preceded by the original byte length.  (This allows proper reconstruction including leading or trailing null bytes in the chunk)
-6. Steps 2--5 are repeated until the whole message is encrypted.
+ 1. The message is converted to a byte array.
+ 2. The message is split into chunks of size specified by _RSAMessage#readChunkSize_ [here](../master/src/rsaEncrypt/message/RSAMessage.java)
+ 3. A random bit string is generated.
+ 4. The message chunk `xor` random bit string is encrypted using the given keyfile
+ 5. The random bit string is written to the encrypted message, preceded by the original byte length.  The encrypted bit string is written to the encrypted message, preceded by the original byte length.  (This allows proper reconstruction including leading or trailing null bytes in the chunk)
+ 6. Steps 2--5 are repeated until the whole message is encrypted.
 
 Decryption is done reversing the process.
 
@@ -64,30 +64,30 @@ The basic pattern is send *Ready* byte, receive data, send *Ack* byte.  If the s
 #### Establish Connection and Intent
 Client | Server
 :---: | :---:
-|Ready
+ |Ready
 Ready|
 Ack|
-|Ready
+ |Ready
 Action Byte| 
-|Ack
-|Ready
+ |Ack
+ |Ready
 Userfile|
-|Ack
+ |Ack
 
 #### Authenticate
 Client | Server
 :---: | :---:
-|Ready
+ |Ready
 Ready|
-|Keyfile
+ |Keyfile
 Ack|
 Ready|
-|RSA Challenge
+ |RSA Challenge
 Ack|
-|Ready
+ |Ready
 Response to Challenge|
-|Ack
-|Success / Failure
+ |Ack
+ |Success / Failure
 
 #### Add New User (if requested)
 No communication.
@@ -95,15 +95,15 @@ No communication.
 #### (Client) Send Messages (if requested)
 Client | Server
 :---: | :---:
-|Ready
+ |Ready
 Messages|
-|Ack
-|Success / Failure (each message)
+ |Ack
+ |Success / Failure (each message)
 
 #### (Client) Receive Messages (if requested)
 Client | Server
 :---: | :---:
-|Ready
+ |Ready
 Ready|
-|Messages
+ |Messages
 Ack|
