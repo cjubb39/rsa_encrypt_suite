@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import shared.Savable;
 import shared.StateAutoSaver;
 import shared.User;
+import shared.Utilities;
 import shared.message.ServerMessage;
 
 /**
@@ -75,8 +76,8 @@ public class RSAMessageServer implements Savable {
 			}
 
 			// print out IP Address and port of server
-			RSAMessageServer.realStdOut.println("RSA Message Server started at " + ipAddress + ":" + port
-					+ ".  Waiting for connections");
+			RSAMessageServer.realStdOut.println(Utilities.getTimeStamp()
+					+ "\tRSA Message Server started at " + ipAddress + ":" + port);
 
 			this.loadState();
 

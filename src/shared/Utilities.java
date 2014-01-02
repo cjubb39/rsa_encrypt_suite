@@ -11,6 +11,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * General utilities and standardizations for serializing and reading data
@@ -191,5 +193,12 @@ public final class Utilities {
 		byte[] dataLength = ByteBuffer.allocate(4).putInt(data.length).array();
 		out.write(dataLength);
 		out.write(data);
+	}
+
+	/**
+	 * @return Timestamp of current time
+	 */
+	public static Timestamp getTimeStamp(){
+		return new Timestamp((new Date()).getTime());
 	}
 }

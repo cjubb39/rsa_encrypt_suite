@@ -44,7 +44,7 @@ public class RSAMessageServerWorker implements Runnable {
 	public RSAMessageServerWorker(Socket client, RSAMessageServer mainServer){
 		this.mainServer = mainServer;
 		this.client = client;
-		System.out.println("Client " + this.client.getInetAddress().getHostAddress() + " Connected");
+		System.out.println(Utilities.getTimeStamp() + "\tClient " + this.client.getInetAddress().getHostAddress() + " Connected");
 
 		try {
 			this.in = this.client.getInputStream();
@@ -154,8 +154,7 @@ public class RSAMessageServerWorker implements Runnable {
 		Utilities.sendByte(CommBytes.ack, this.out);
 
 		for (ServerMessage sm : messagesIn) {
-			System.out.print("Message [INC] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: "
-					+ sm.getDate().getTime() + "; M: " + sm.hashCode());
+			System.out.print(Utilities.getTimeStamp() + "\tMessage [INC]: " + sm.hashCode());
 			if (sm.getSender() == user.getID()) {
 				this.mainServer.addMessage(sm);
 				Utilities.sendByte(CommBytes.success, this.out);
@@ -188,8 +187,7 @@ public class RSAMessageServerWorker implements Runnable {
 		ServerMessage[] outgoing = this.mainServer.checkForMessages(user.getID());
 
 		for (ServerMessage sm : outgoing) {
-			System.out.println("Message [OUT] F: " + sm.getSender() + "; T: " + sm.getRecipient()
-					+ "; D: " + sm.getDate().getTime() + "; M: " + sm.hashCode());
+			System.out.println(Utilities.getTimeStamp() + "\tMessage [OUT]: " + sm.hashCode());
 		}
 
 		Utilities.sendData(Utilities.serializeToByteArray(outgoing), this.out);
@@ -231,7 +229,7 @@ public class RSAMessageServerWorker implements Runnable {
 	 *           Error communicating with client. Likely socket problem.
 	 */
 	private User authenticate(User readIn) throws IOException{
-		System.out.print("Authenticate: " + readIn.getID());
+		System.out.print(Utilities.getTimeStamp() + "\tAuthenticate: " + readIn.getID());
 		// let client know we're starting
 		Utilities.sendByte(CommBytes.ready, this.out);
 
@@ -279,7 +277,7 @@ public class RSAMessageServerWorker implements Runnable {
 		if (!this.client.isClosed()) {
 			try {
 				Utilities.sendByte(CommBytes.hangup, this.out);
-				System.out.println("Client " + this.client.getInetAddress().getHostAddress()
+				System.out.println(Utilities.getTimeStamp() + "\tClient " + this.client.getInetAddress().getHostAddress()
 						+ " Disconnected");
 				this.client.close();
 			} catch (IOException e) {

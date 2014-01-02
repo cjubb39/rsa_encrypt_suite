@@ -136,9 +136,10 @@ public class ServerMessage extends RSAMessage implements Serializable {
 	 */
 	@Override
 	public int hashCode(){
-		return (new BigInteger(this.getMessage())).xor(BigInteger.valueOf(this.sender))
-				.xor(BigInteger.valueOf(this.recipient)).xor(BigInteger.valueOf(this.date.hashCode()))
-				.intValue();
+		return (new BigInteger(this.getMessage()).hashCode())
+				^ (BigInteger.valueOf(this.sender).hashCode())
+				^ (BigInteger.valueOf(this.recipient).hashCode())
+				^ (BigInteger.valueOf(this.date.hashCode()).hashCode());
 	}
 
 	/**
