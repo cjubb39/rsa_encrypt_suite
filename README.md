@@ -2,7 +2,7 @@
 A set of programs designed to facilitate secure communication using an implementation the RSA encryption algorithm.  The suite includes a program to start a server to hold the messages and a separate program to run a client to interface with that server.
 
 ##How to Use
-Apache Ant should be installed to take advantage of the included [build file](../blob/master/build.xml).  This file uses the Java 6 compiler.
+Apache Ant should be installed to take advantage of the included [build file](../master/build.xml).  This file uses the Java 6 compiler.
 To build and run the server and client: 
 ```bash
 ant build
@@ -49,7 +49,7 @@ Because the user ID used to store messages on the server depends only on the use
 ## RSA Implementation Details
 The security is based upon the following implementation of the RSA algorithm.  Encryption is done as follows:
 1. The message is converted to a byte array.
-2. The message is split into chunks of size specified by _RSAMessage#readChunkSize_ [here](../blob/master/src/rsaEncrypt/message/RSAMessage.java)
+2. The message is split into chunks of size specified by _RSAMessage#readChunkSize_ [here](../master/src/rsaEncrypt/message/RSAMessage.java)
 3. A random bit string is generated.
 4. The message chunk `xor` random bit string is encrypted using the given keyfile
 5. The random bit string is written to the encrypted message, preceded by the original byte length.  The encrypted bit string is written to the encrypted message, preceded by the original byte length.  (This allows proper reconstruction including leading or trailing null bytes in the chunk)
@@ -58,7 +58,7 @@ The security is based upon the following implementation of the RSA algorithm.  E
 Decryption is done reversing the process.
 
 ## Server Protocol
-The communication proceeds as follows, using special bytes as defined [here](../blob/master/src/shared/serverComm/CommBytes.java).  The following tables show the flow of communication, where the information in the Client column is **_sent_** by the client and information in Server column is **_sent_** by the server.  
+The communication proceeds as follows, using special bytes as defined [here](../master/src/shared/serverComm/CommBytes.java).  The following tables show the flow of communication, where the information in the Client column is **_sent_** by the client and information in Server column is **_sent_** by the server.  
 The basic pattern is send *Ready* byte, receive data, send *Ack* byte.  If the server detects an error, it will send the HANGUP byte and terminate the connection.
 
 #### Establish Connection and Intent
