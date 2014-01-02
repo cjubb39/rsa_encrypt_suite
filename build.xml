@@ -24,6 +24,8 @@
 		/>
 	</target>
 
+	<target name="build" depends="jar"/>
+
 	<target name="jar" depends="serverjar,clientjar,rsajar">
 	</target>
 
@@ -92,5 +94,7 @@
     	version="true"
     />
    </target>
+
+   <target name="reset" depends="clean,jar"/>
 
 </project>

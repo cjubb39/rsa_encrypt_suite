@@ -246,7 +246,7 @@ public class RSAEncryptGUI implements shared.Savable {
 	}
 
 	/**
-	 * Load saved profile from file specified by {@link RSAEncryptGUI.profileSave}. If this
+	 * Load saved profile from file specified by {@link RSAEncryptGUI#profileSave}. If this
 	 * file does not exist, prompt user for name and create new profile
 	 */
 	@SuppressWarnings("unchecked")
@@ -290,7 +290,7 @@ public class RSAEncryptGUI implements shared.Savable {
 	}
 
 	/**
-	 * Save profile to file specified by {@link RSAEncryptGUI.profileSave}.
+	 * Save profile to file specified by {@link RSAEncryptGUI#profileSave}.
 	 */
 	protected void saveProfile(){
 		try {
