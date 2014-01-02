@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 
 import javax.swing.JButton;
@@ -29,6 +30,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 
 import client.message.ClientMessage;
+import client.message.InboxMessage;
 import client.table.InboxController;
 
 import shared.StateAutoSaver;
@@ -278,6 +280,16 @@ public class RSAEncryptGUI implements shared.Savable {
 		if (this.getActiveProfile().getServers().size() > 0) {
 			this.getActiveProfile().getServers()
 					.setActiveServer(this.getActiveProfile().getServers().getData().get(0));
+		}
+		
+		// rescan Inbox for converting numbers to names
+		if (this.getActiveProfile().getMessages().size() > 0){
+			List<InboxMessage> messages = this.getActiveProfile().getMessages();
+			for (int i = 0; i < messages.size(); i++){
+				if (messages.get(i).sender.matches("\\d+")){
+					messages.set(i, new InboxMessage(messages.get(i), this.getActiveProfile().getAddressBook()));
+				}
+			}
 		}
 	}
 

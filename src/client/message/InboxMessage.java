@@ -20,7 +20,7 @@ public class InboxMessage implements TableData, java.io.Serializable {
 	private static final long serialVersionUID = -8850782539102043049L;
 	public transient boolean delete;
 	public final String sender;
-	@SuppressWarnings("unused") private final String recipient;
+	private final String recipient;
 	public final Date date;
 	public final String message;
 
@@ -43,6 +43,35 @@ public class InboxMessage implements TableData, java.io.Serializable {
 
 		this.message = new String(sm.getMessage());
 		this.delete = false;
+	}
+
+	/**
+	 * Constructor the rechecks user IDs for name from address book
+	 * 
+	 * @param im
+	 *          Message to recheck
+	 * @param addressBook
+	 *          AddressBook to check message with
+	 */
+	public InboxMessage(InboxMessage im, AddressBook addressBook){
+		// update non-user fields
+		this.date = im.date;
+		this.message = im.message;
+
+		// update user fields (if necessary/able)
+		if (im.sender.matches("\\d+")) {
+			User tmp = addressBook.lookupByID(Long.parseLong(im.sender));
+			this.sender = (tmp == null) ? String.valueOf(im.sender) : tmp.toString();
+		} else {
+			this.sender = im.sender;
+		}
+
+		if (im.recipient.matches("\\d+")) {
+			User tmp = addressBook.lookupByID(Long.parseLong(im.recipient));
+			this.recipient = (tmp == null) ? String.valueOf(im.recipient) : tmp.toString();
+		} else {
+			this.recipient = im.recipient;
+		}
 	}
 
 	/*
