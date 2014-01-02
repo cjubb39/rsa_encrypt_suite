@@ -63,6 +63,7 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 		this.addProp.setTitle(header);
 		this.addProp.setSize(new Dimension(350, 250));
 		this.addProp.setLayout(new BorderLayout());
+		this.addProp.setLocationRelativeTo(null);
 
 		// set up list
 		this.dataList = new JList(this.data.getDataStringArray());
@@ -90,6 +91,8 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 		this.addProp.add(buttons, BorderLayout.SOUTH);
 		this.addProp.add(scrollPane, BorderLayout.CENTER);
 		this.addProp.setVisible(true);
+		
+		this.addProp.getRootPane().setDefaultButton(this.setButton);
 	}
 
 	/*

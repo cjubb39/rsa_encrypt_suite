@@ -105,6 +105,9 @@ public class RSAEncryptGUI implements shared.Savable {
 		this.mainGUI.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.mainGUI.addWindowListener(this.controller);
 		this.mainGUI.getContentPane().setLayout(new BorderLayout(0, 0));
+		
+		//set location on screen
+		this.mainGUI.setLocationRelativeTo(null);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		this.mainGUI.getContentPane().add(tabbedPane, BorderLayout.CENTER);

@@ -142,6 +142,7 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 		this.mainGUI.setSize(new Dimension(350, 250));
 		this.mainGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.mainGUI.getContentPane().setLayout(new BorderLayout(0, 0));
+		this.mainGUI.setLocationRelativeTo(null);
 
 		JPanel controlButtons = new JPanel();
 		controlButtons.setLayout(new FlowLayout());
