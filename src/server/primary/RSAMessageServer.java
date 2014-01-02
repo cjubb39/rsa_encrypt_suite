@@ -25,7 +25,7 @@ import shared.message.ServerMessage;
  * connections, each executed on different threads.
  * 
  * @author Chae Jubb
- * @version 1.0
+ * @version 1.1
  * 
  */
 public class RSAMessageServer implements Savable {

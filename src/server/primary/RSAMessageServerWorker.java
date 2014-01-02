@@ -30,11 +30,11 @@ public class RSAMessageServerWorker implements Runnable {
 	private InputStream in;
 	private RSAMessageServer mainServer;
 	private Random rng;
-	
+
 	public static final int timeoutMilli = 60 * 1000; // 1 minute
 
 	/**
-	 * Constructor. Creates necessary SOcket, PrintWriter, Scanner.
+	 * Constructor. Creates necessary Socket, PrintWriter, Scanner.
 	 * 
 	 * @param client
 	 *          Client of connection
@@ -62,24 +62,22 @@ public class RSAMessageServerWorker implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run(){
-		//first set timeout on socket
+		// first set timeout on socket
 		try {
 			this.client.setSoTimeout(timeoutMilli);
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 			return;
-		}		
-		
+		}
+
 		byte action = 0;
 		User user = null;
-
-		byte debug = -1;
 
 		try {
 			// start comm with ready byte and send ack byte
 			Utilities.sendByte(CommBytes.ready, this.out);
-			if ((debug = Utilities.receiveByte(this.in)) != CommBytes.ready) {
-				System.out.println("OUT: " + debug);
+			if (Utilities.receiveByte(this.in) != CommBytes.ready) {
+				this.closeConnections();
 				return;
 			}
 			Utilities.sendByte(CommBytes.ack, this.out);
@@ -118,6 +116,8 @@ public class RSAMessageServerWorker implements Runnable {
 			Utilities.sendByte(CommBytes.success, this.out);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			this.closeConnections();
 		}
 
 	}
@@ -154,8 +154,8 @@ public class RSAMessageServerWorker implements Runnable {
 		Utilities.sendByte(CommBytes.ack, this.out);
 
 		for (ServerMessage sm : messagesIn) {
-			System.out.print("[INCOMING] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: "
-					+ sm.getDate());
+			System.out.print("Message [INC] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: "
+					+ sm.getDate().getTime() + "; M: " + sm.hashCode());
 			if (sm.getSender() == user.getID()) {
 				this.mainServer.addMessage(sm);
 				Utilities.sendByte(CommBytes.success, this.out);
@@ -188,8 +188,8 @@ public class RSAMessageServerWorker implements Runnable {
 		ServerMessage[] outgoing = this.mainServer.checkForMessages(user.getID());
 
 		for (ServerMessage sm : outgoing) {
-			System.out.println("[OUTGOING] F: " + sm.getSender() + "; T: " + sm.getRecipient() + "; D: "
-					+ sm.getDate());
+			System.out.println("Message [OUT] F: " + sm.getSender() + "; T: " + sm.getRecipient()
+					+ "; D: " + sm.getDate().getTime() + "; M: " + sm.hashCode());
 		}
 
 		Utilities.sendData(Utilities.serializeToByteArray(outgoing), this.out);
@@ -231,6 +231,7 @@ public class RSAMessageServerWorker implements Runnable {
 	 *           Error communicating with client. Likely socket problem.
 	 */
 	private User authenticate(User readIn) throws IOException{
+		System.out.print("Authenticate: " + readIn.getID());
 		// let client know we're starting
 		Utilities.sendByte(CommBytes.ready, this.out);
 
@@ -262,10 +263,11 @@ public class RSAMessageServerWorker implements Runnable {
 
 		if (returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)) {
 			Utilities.sendByte(CommBytes.success, this.out);
-			System.out.println("Authenticated: " + readIn.getID());
+			System.out.println(" [PASS]");
 			return readIn;
 		} else {
 			Utilities.sendByte(CommBytes.failure, this.out);
+			System.out.println(" [FAIL]");
 			return null;
 		}
 	}
@@ -274,16 +276,15 @@ public class RSAMessageServerWorker implements Runnable {
 	 * Close PrintWriter, Scanner, and Socket
 	 */
 	private void closeConnections(){
-		try {
-			Utilities.sendByte(CommBytes.hangup, this.out);
-			this.out.close();
-			this.in.close();
-			System.out.println("Client " + this.client.getInetAddress().getHostAddress()
-					+ " Disconnected");
-			this.client.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (!this.client.isClosed()) {
+			try {
+				Utilities.sendByte(CommBytes.hangup, this.out);
+				System.out.println("Client " + this.client.getInetAddress().getHostAddress()
+						+ " Disconnected");
+				this.client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-
 }

@@ -1,6 +1,7 @@
 package shared.message;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
 import rsaEncrypt.key.KeyFile;
@@ -127,6 +128,17 @@ public class ServerMessage extends RSAMessage implements Serializable {
 	public ServerMessage decryptMessage(KeyFile key){
 		return new ServerMessage(this.getSender(), this.getRecipient(), super.decryptMessage(key)
 				.getMessage(), this.getDate());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode(){
+		return (new BigInteger(this.getMessage())).xor(BigInteger.valueOf(this.sender))
+				.xor(BigInteger.valueOf(this.recipient)).xor(BigInteger.valueOf(this.date.hashCode()))
+				.intValue();
 	}
 
 	/**
