@@ -65,18 +65,29 @@
 		</jar>
 	</target>
 
-	<target name="runServerCustom" depends="serverjar">
-		<java jar="${jarDir}/RSAESserver.jar" fork="true" spawn="true">
-			<arg value="${arg0}"/>
-			<arg value="${arg1}"/>
-		</java>
+	<target name="runServer" depends="serverjar">
+		<condition property="port" value="4444">
+			<not>
+				<isset property="port"/>
+			</not>
+		</condition>
+		<condition property="logFile" value="data/server/serverLog">
+			<not>
+				<isset property="logFile"/>
+			</not>
+		</condition>
+
+		<exec executable="sh" failonerror="true">
+			<arg value="./startServer.sh"/>
+			<arg value="${port}"/>
+			<arg value="${logFile}"/>
+		</exec>
 	</target>
 
-	<target name="runServer" depends="serverjar">
-		<java jar="${jarDir}/RSAESserver.jar" fork="true" spawn="true">
-			<arg value="4444"/>
-			<arg value="data/server/serverLog"/>
-		</java>
+	<target name="stopServer">
+		<exec executable="sh" failonerror="true">
+			<arg value="./stopServer.sh"/>
+		</exec>
 	</target>
 
 	<target name="runClient" depends="clientjar">
@@ -101,7 +112,7 @@
     	use="true"
     	version="true"
     />
-   </target>
+  </target>
 
    <target name="reset" depends="clean,jar"/>
 

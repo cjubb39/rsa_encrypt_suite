@@ -3,16 +3,20 @@ A set of programs designed to facilitate secure communication using an implement
 
 ##How to Use
 Apache Ant should be installed to take advantage of the included [build file](../master/build.xml).  This file uses the Java 6 compiler.
-To build and run the server and client: 
+To build the project:
 ```bash
 ant build
+```
+Start and stop the server (Note that runServer defaults to port `4444` and outputs log to `./data/server/serverLog` if not specified):
+```bash
+ant runServer -Dport=DESIRED_PORT -DlogFile=LOG_OUTPUT
+ant stopServer
+```
 
-ant runServer
-ant runServerCustom -Darg0=DESIRED_PORT -Darg1=LOG_OUTPUT
-
+Run client:
+```bash
 ant runClient
 ```
-Note: runServer defaults to port `4444` and outputs log to `./serverLog`
 
 ##Features
 ###Server
