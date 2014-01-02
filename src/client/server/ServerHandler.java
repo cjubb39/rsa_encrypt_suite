@@ -21,6 +21,8 @@ import client.primary.UserProfile;
  * 
  */
 public class ServerHandler {
+	
+	public static final int timeoutMilli = 60*1000; // 1 minute
 
 	/**
 	 * Handles connection with given server
@@ -51,6 +53,8 @@ public class ServerHandler {
 		Socket socket = new Socket(server.getHostname(), server.getPort());
 		InputStream in = socket.getInputStream();
 		OutputStream out = socket.getOutputStream();
+		
+		socket.setSoTimeout(timeoutMilli);
 
 		// set up communication
 		if (Utilities.receiveByte(in) != CommBytes.ready) {

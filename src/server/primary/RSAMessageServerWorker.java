@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 
 import rsaEncrypt.MakeKeys;
@@ -29,6 +30,8 @@ public class RSAMessageServerWorker implements Runnable {
 	private InputStream in;
 	private RSAMessageServer mainServer;
 	private Random rng;
+	
+	public static final int timeoutMilli = 60 * 1000; // 1 minute
 
 	/**
 	 * Constructor. Creates necessary SOcket, PrintWriter, Scanner.
@@ -59,6 +62,14 @@ public class RSAMessageServerWorker implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run(){
+		//first set timeout on socket
+		try {
+			this.client.setSoTimeout(timeoutMilli);
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+			return;
+		}		
+		
 		byte action = 0;
 		User user = null;
 
