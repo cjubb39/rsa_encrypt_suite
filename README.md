@@ -6,9 +6,13 @@ Apache Ant should be installed to take advantage of the included [build file](..
 To build and run the server and client: 
 ```bash
 ant build
-ant runServer -Darg0=DESIRED_PORT
+
+ant runServer
+ant runServerCustom -Darg0=DESIRED_PORT -Darg1=LOG_OUTPUT
+
 ant runClient
 ```
+Note: runServer defaults to port `4444` and outputs log to `./serverLog`
 
 ##Features
 ###Server

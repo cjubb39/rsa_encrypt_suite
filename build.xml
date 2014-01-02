@@ -65,14 +65,22 @@
 		</jar>
 	</target>
 
-	<target name="runServer" depends="serverjar">
-		<java jar="${jarDir}/RSAESserver.jar" fork="true">
+	<target name="runServerCustom" depends="serverjar">
+		<java jar="${jarDir}/RSAESserver.jar" fork="true" spawn="true">
 			<arg value="${arg0}"/>
+			<arg value="${arg1}"/>
+		</java>
+	</target>
+
+	<target name="runServer" depends="serverjar">
+		<java jar="${jarDir}/RSAESserver.jar" fork="true" spawn="true">
+			<arg value="4444"/>
+			<arg value="data/server/serverLog"/>
 		</java>
 	</target>
 
 	<target name="runClient" depends="clientjar">
-		<java jar="${jarDir}/RSAESclient.jar" fork="true">
+		<java jar="${jarDir}/RSAESclient.jar" fork="true" spawn="true">
 		</java>
 	</target>
 

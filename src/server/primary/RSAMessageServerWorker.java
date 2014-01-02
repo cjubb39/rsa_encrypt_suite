@@ -44,13 +44,14 @@ public class RSAMessageServerWorker implements Runnable {
 	public RSAMessageServerWorker(Socket client, RSAMessageServer mainServer){
 		this.mainServer = mainServer;
 		this.client = client;
-		System.out.println(Utilities.getTimeStamp() + "\tClient " + this.client.getInetAddress().getHostAddress() + " Connected");
+		this.mainServer.logOut.println(Utilities.getTimeStamp() + "\tClient "
+				+ this.client.getInetAddress().getHostAddress() + " Connected");
 
 		try {
 			this.in = this.client.getInputStream();
 			this.out = this.client.getOutputStream();
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.mainServer.logOut);
 		}
 
 		this.rng = new Random(System.nanoTime());
@@ -66,7 +67,7 @@ public class RSAMessageServerWorker implements Runnable {
 		try {
 			this.client.setSoTimeout(timeoutMilli);
 		} catch (SocketException e1) {
-			e1.printStackTrace();
+			e1.printStackTrace(this.mainServer.logOut);
 			return;
 		}
 
@@ -115,7 +116,7 @@ public class RSAMessageServerWorker implements Runnable {
 
 			Utilities.sendByte(CommBytes.success, this.out);
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.mainServer.logOut);
 		} finally {
 			this.closeConnections();
 		}
@@ -148,20 +149,20 @@ public class RSAMessageServerWorker implements Runnable {
 			messagesIn = (ServerMessage[]) Utilities.deserializeFromByteArray(Utilities
 					.receiveData(this.in));
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.mainServer.logOut);
 			return;
 		}
 		Utilities.sendByte(CommBytes.ack, this.out);
 
 		for (ServerMessage sm : messagesIn) {
-			System.out.print(Utilities.getTimeStamp() + "\tMessage [INC]: " + sm.hashCode());
+			this.mainServer.logOut.print(Utilities.getTimeStamp() + "\tMessage [INC]: " + sm.hashCode());
 			if (sm.getSender() == user.getID()) {
 				this.mainServer.addMessage(sm);
 				Utilities.sendByte(CommBytes.success, this.out);
-				System.out.println(" [PASS]");
+				this.mainServer.logOut.println(" [PASS]");
 			} else {
 				Utilities.sendByte(CommBytes.failure, this.out);
-				System.out.println(" [FAIL]");
+				this.mainServer.logOut.println(" [FAIL]");
 			}
 		}
 	}
@@ -187,7 +188,8 @@ public class RSAMessageServerWorker implements Runnable {
 		ServerMessage[] outgoing = this.mainServer.checkForMessages(user.getID());
 
 		for (ServerMessage sm : outgoing) {
-			System.out.println(Utilities.getTimeStamp() + "\tMessage [OUT]: " + sm.hashCode());
+			this.mainServer.logOut
+					.println(Utilities.getTimeStamp() + "\tMessage [OUT]: " + sm.hashCode());
 		}
 
 		Utilities.sendData(Utilities.serializeToByteArray(outgoing), this.out);
@@ -213,7 +215,7 @@ public class RSAMessageServerWorker implements Runnable {
 		try {
 			curUser = (User) Utilities.deserializeFromByteArray(messageIn);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.mainServer.logOut);
 			return null;
 		}
 		return curUser;
@@ -229,7 +231,7 @@ public class RSAMessageServerWorker implements Runnable {
 	 *           Error communicating with client. Likely socket problem.
 	 */
 	private User authenticate(User readIn) throws IOException{
-		System.out.print(Utilities.getTimeStamp() + "\tAuthenticate: " + readIn.getID());
+		this.mainServer.logOut.print(Utilities.getTimeStamp() + "\tAuthenticate: " + readIn.getID());
 		// let client know we're starting
 		Utilities.sendByte(CommBytes.ready, this.out);
 
@@ -261,11 +263,11 @@ public class RSAMessageServerWorker implements Runnable {
 
 		if (returned.xor(new BigInteger(test.getMessage())).equals(BigInteger.ZERO)) {
 			Utilities.sendByte(CommBytes.success, this.out);
-			System.out.println(" [PASS]");
+			this.mainServer.logOut.println(" [PASS]");
 			return readIn;
 		} else {
 			Utilities.sendByte(CommBytes.failure, this.out);
-			System.out.println(" [FAIL]");
+			this.mainServer.logOut.println(" [FAIL]");
 			return null;
 		}
 	}
@@ -277,11 +279,11 @@ public class RSAMessageServerWorker implements Runnable {
 		if (!this.client.isClosed()) {
 			try {
 				Utilities.sendByte(CommBytes.hangup, this.out);
-				System.out.println(Utilities.getTimeStamp() + "\tClient " + this.client.getInetAddress().getHostAddress()
-						+ " Disconnected");
+				this.mainServer.logOut.println(Utilities.getTimeStamp() + "\tClient "
+						+ this.client.getInetAddress().getHostAddress() + " Disconnected");
 				this.client.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				e.printStackTrace(this.mainServer.logOut);
 			}
 		}
 	}

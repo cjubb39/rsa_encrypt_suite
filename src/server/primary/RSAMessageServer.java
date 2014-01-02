@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import shared.message.ServerMessage;
 public class RSAMessageServer implements Savable {
 
 	public final static PrintStream realStdOut = System.out;
+	public final PrintWriter logOut;
 	private ServerSocket serveSocket;
 
 	private LinkedBlockingDeque<ServerMessage> messageQueue;
@@ -50,15 +52,8 @@ public class RSAMessageServer implements Savable {
 	 * @param port
 	 *          Port on which to start server
 	 */
-	public RSAMessageServer(int port){
-		// add interrupt catch
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run(){
-				System.err.println("EMERGENCY SAVE");
-				saveState();
-				closeConnections();
-			}
-		});
+	public RSAMessageServer(int port, PrintWriter serverLog){
+		this.logOut = serverLog;
 
 		this.connections = new ThreadGroup("Connections");
 
@@ -76,8 +71,8 @@ public class RSAMessageServer implements Savable {
 			}
 
 			// print out IP Address and port of server
-			RSAMessageServer.realStdOut.println(Utilities.getTimeStamp()
-					+ "\tRSA Message Server started at " + ipAddress + ":" + port);
+			this.logOut.println(Utilities.getTimeStamp() + "\tRSA Message Server started at " + ipAddress
+					+ ":" + port);
 
 			this.loadState();
 
@@ -89,12 +84,22 @@ public class RSAMessageServer implements Savable {
 				this.users = new ArrayList<User>();
 			}
 
+			// add interrupt catch
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run(){
+					logOut.println(Utilities.getTimeStamp() + "\tEMERGENCY SAVE");
+					logOut.flush();
+					saveState();
+					closeConnections();
+				}
+			});
+
 			// schedules saving state periodically
 			new Timer(true).schedule(new StateAutoSaver(this), saveStateDelayMilli, saveStateDelayMilli);
 
 			this.waitForConnect();
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.logOut);
 		} finally {
 			this.saveState();
 			this.closeConnections();
@@ -123,10 +128,10 @@ public class RSAMessageServer implements Savable {
 				uout.close();
 				userOut.close();
 			}
-			System.out.println("State saved");
+			this.logOut.println(Utilities.getTimeStamp() + "\tState saved");
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.logOut);
 		}
 	}
 
@@ -150,9 +155,9 @@ public class RSAMessageServer implements Savable {
 		} catch (FileNotFoundException e) {
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.logOut);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.logOut);
 		}
 	}
 
@@ -214,7 +219,7 @@ public class RSAMessageServer implements Savable {
 				new Thread(this.connections, new RSAMessageServerWorker(this.serveSocket.accept(), this))
 						.start();
 			} catch (IOException e) {
-				e.printStackTrace();
+				e.printStackTrace(this.logOut);
 			}
 		}
 	}
@@ -226,7 +231,7 @@ public class RSAMessageServer implements Savable {
 		try {
 			this.serveSocket.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(this.logOut);
 		}
 	}
 
