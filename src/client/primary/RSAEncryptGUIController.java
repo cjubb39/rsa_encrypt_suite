@@ -216,6 +216,8 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 							.getActiveServer(), this.gui.getActiveProfile(), messages, null);
 		} catch (IOException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this.gui.getMainGUI(), "Error sending message!",
+					"Connection Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
@@ -234,6 +236,9 @@ public class RSAEncryptGUIController implements ActionListener, WindowListener, 
 			ServerHandler.connectAndAct((byte) (CommBytes.addNewUser | CommBytes.receiveMessage),
 					this.gui.getActiveProfile().getActiveServer(), this.gui.getActiveProfile(), null, ret);
 		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this.gui.getMainGUI(), "Error checking messages!",
+					"Connection Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 
