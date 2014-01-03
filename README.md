@@ -2,7 +2,7 @@
 A set of programs designed to facilitate secure communication using an implementation the RSA encryption algorithm.  The suite includes a program to start a server to hold the messages and a separate program to run a client to interface with that server.
 
 ##How to Use
-Apache Ant should be installed to take advantage of the included [build file](../master/build.xml).  This file uses the Java 6 compiler.
+Apache Ant should be installed to take advantage of the included [build file](../master/build.xml).  This file uses the Java 7 compiler.
 To build the project:
 ```bash
 ant build

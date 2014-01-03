@@ -21,8 +21,8 @@ import client.primary.UserProfile;
  * 
  */
 public class ServerHandler {
-	
-	public static final int timeoutMilli = 60*1000; // 1 minute
+
+	public static final int timeoutMilli = 60 * 1000; // 1 minute
 
 	/**
 	 * Handles connection with given server
@@ -53,7 +53,7 @@ public class ServerHandler {
 		Socket socket = new Socket(server.getHostname(), server.getPort());
 		InputStream in = socket.getInputStream();
 		OutputStream out = socket.getOutputStream();
-		
+
 		socket.setSoTimeout(timeoutMilli);
 
 		// set up communication
@@ -196,6 +196,7 @@ public class ServerHandler {
 				}
 			}
 		}
+		closeConnection(socket);
 		return true;
 	}
 
@@ -206,10 +207,12 @@ public class ServerHandler {
 	 *          Socket for which to close connection
 	 */
 	public static void closeConnection(Socket sock){
-		try {
-			sock.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (!sock.isClosed()) {
+			try {
+				sock.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return;
 	}

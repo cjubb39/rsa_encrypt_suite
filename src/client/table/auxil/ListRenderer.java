@@ -45,7 +45,7 @@ public class ListRenderer extends DefaultListCellRenderer {
 	 *      java.lang.Object, int, boolean, boolean)
 	 */
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index,
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index,
 			boolean isSelected, boolean hasFocus){
 
 		// sketchy cast but it works

@@ -29,8 +29,8 @@
 		<mkdir dir="${classDir}"/>
 		<javac srcdir="${srcDir}"
 			destdir="${classDir}"
-			source="1.6"
-			target="1.6"
+			source="1.7"
+			target="1.7"
 			includeantruntime="false"
 		/>
 	</target>
@@ -132,7 +132,7 @@
     	nonavbar="false"
     	notree="false"
     	packagenames="client.table.aux,client.server,rsaEncrypt,server.primary,client,shared.serverComm,rsaEncrypt.key,server,client.table,client.message,shared.message,client.table.gui,client.primary,shared"
-    	source="1.6"
+    	source="1.7"
     	sourcepath="${srcDir}"
     	splitindex="true"
     	use="true"

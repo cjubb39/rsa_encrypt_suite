@@ -105,8 +105,8 @@ public class RSAEncryptGUI implements shared.Savable {
 		this.mainGUI.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.mainGUI.addWindowListener(this.controller);
 		this.mainGUI.getContentPane().setLayout(new BorderLayout(0, 0));
-		
-		//set location on screen
+
+		// set location on screen
 		this.mainGUI.setLocationRelativeTo(null);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -284,13 +284,14 @@ public class RSAEncryptGUI implements shared.Savable {
 			this.getActiveProfile().getServers()
 					.setActiveServer(this.getActiveProfile().getServers().getData().get(0));
 		}
-		
+
 		// rescan Inbox for converting numbers to names
-		if (this.getActiveProfile().getMessages().size() > 0){
+		if (this.getActiveProfile().getMessages().size() > 0) {
 			List<InboxMessage> messages = this.getActiveProfile().getMessages();
-			for (int i = 0; i < messages.size(); i++){
-				if (messages.get(i).sender.matches("\\d+")){
-					messages.set(i, new InboxMessage(messages.get(i), this.getActiveProfile().getAddressBook()));
+			for (int i = 0; i < messages.size(); i++) {
+				if (messages.get(i).sender.matches("\\d+")) {
+					messages.set(i, new InboxMessage(messages.get(i), this.getActiveProfile()
+							.getAddressBook()));
 				}
 			}
 		}

@@ -18,8 +18,10 @@ import client.table.auxil.ListRenderer;
 /**
  * Manages a GUI to select a property specified by given data
  * 
+ * v2.0 updated for java 7 compability. Not backwards compatable with java 6
+ * 
  * @author Chae Jubb
- * @version 1.0
+ * @version 2.0
  * 
  * @param <T>
  *          Type of data to be chosen
@@ -28,7 +30,7 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 
 	private T data;
 
-	private JList dataList;
+	private JList<String> dataList;
 	private JDialog addProp;
 	private JButton cancelButton;
 	private JButton setButton;
@@ -66,7 +68,7 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 		this.addProp.setLocationRelativeTo(null);
 
 		// set up list
-		this.dataList = new JList(this.data.getDataStringArray());
+		this.dataList = new JList<String>(this.data.getDataStringArray());
 		this.dataList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		this.dataList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		this.dataList.setFixedCellWidth(-1);
@@ -91,7 +93,7 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 		this.addProp.add(buttons, BorderLayout.SOUTH);
 		this.addProp.add(scrollPane, BorderLayout.CENTER);
 		this.addProp.setVisible(true);
-		
+
 		this.addProp.getRootPane().setDefaultButton(this.setButton);
 	}
 
@@ -118,7 +120,7 @@ public abstract class SelectPropertyGUI<T extends ListManager<?>> implements Act
 	/**
 	 * @return List object of formatted data
 	 */
-	public JList getDataList(){
+	public JList<String> getDataList(){
 		return dataList;
 	}
 
