@@ -7,7 +7,7 @@ To build the project:
 ```bash
 ant build
 ```
-Start and stop the server (Note that runServer defaults to port `4444` and outputs log to `./data/server/serverLog` if not specified):
+Start and stop the server.  Note that runServer defaults to port `4444` and outputs log to `./data/server/serverLog` if not specified.  Also, `ant stopServer` should not be run on Windows as the server process never detaches from the command prompt.
 ```bash
 ant runServer -Dport=DESIRED_PORT -DlogFile=LOG_OUTPUT
 ant stopServer

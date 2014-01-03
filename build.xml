@@ -9,6 +9,17 @@
 	<property name="clientjar" value="RSAESclient.jar"/>
 	<property name="rsajar" value="rsaEncrypt.jar"/>
 
+	<!--Get operating system-->
+	<condition property="isUnix">
+		<or>
+			<os family="unix"/>
+			<os family="mac"/>
+		</or>
+	</condition>
+	<condition property="isWindows">
+  	<os family="windows"/>
+	</condition>
+
 	<target name="clean">
 		<delete dir="${binDir}"/>
 		<delete dir="${docDir}"/>
@@ -65,8 +76,10 @@
 		</jar>
 	</target>
 
-	<target name="runServer" depends="serverjar">
-		<condition property="port" value="4444">
+	<target name="runServer" depends="runServerUnix,runServerWindows"/>
+
+	<target name="setServerArgs">
+			<condition property="port" value="4444">
 			<not>
 				<isset property="port"/>
 			</not>
@@ -76,7 +89,10 @@
 				<isset property="logFile"/>
 			</not>
 		</condition>
+	</target>
 
+	<target name="runServerUnix" depends="serverjar,setServerArgs" if="isUnix">
+		<mkdir dir="data/server"/>
 		<exec executable="sh" failonerror="true">
 			<arg value="./startServer.sh"/>
 			<arg value="${port}"/>
@@ -84,14 +100,24 @@
 		</exec>
 	</target>
 
-	<target name="stopServer">
+	<target name="runServerWindows" depends="serverjar,setServerArgs" if="isWindows">
+		<mkdir dir="data/server"/>
+		<echo message="Server starting on port ${port} and logging to ${logFile}"/>
+		<java jar="${jarDir}/${serverjar}" fork="true">
+			<arg value="${port}"/>
+	    <arg value="${logFile}"/>
+		</java>
+	</target>
+
+	<target name="stopServer" if="isUnix">
 		<exec executable="sh" failonerror="true">
 			<arg value="./stopServer.sh"/>
 		</exec>
 	</target>
 
 	<target name="runClient" depends="clientjar">
-		<java jar="${jarDir}/RSAESclient.jar" fork="true" spawn="true">
+		<mkdir dir="data/client"/>
+		<java jar="${jarDir}/${clientjar}" fork="true" spawn="true">
 		</java>
 	</target>
 
