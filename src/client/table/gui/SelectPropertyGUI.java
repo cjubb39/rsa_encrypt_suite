@@ -13,7 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import client.table.ListManager;
-import client.table.aux.ListRenderer;
+import client.table.auxil.ListRenderer;
 
 /**
  * Manages a GUI to select a property specified by given data

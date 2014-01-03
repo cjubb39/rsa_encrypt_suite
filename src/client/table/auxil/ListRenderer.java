@@ -1,4 +1,4 @@
-package client.table.aux;
+package client.table.auxil;
 
 import java.awt.Component;
 import javax.swing.BorderFactory;

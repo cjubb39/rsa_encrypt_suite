@@ -23,7 +23,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import shared.TableData;
-import client.table.aux.ListManagerTableMod;
+import client.table.auxil.ListManagerTableMod;
 
 /**
  * Manage a list of data allowing it to be displayed as a dynamically updating table.
@@ -60,7 +60,7 @@ public abstract class ListManager<T extends TableData> implements ActionListener
 	public ListManager(ArrayList<T> data){
 		this.data = data;
 		this.tableModel = new ListManagerTableMod<T>(data);
-		this.cellRenderer = new client.table.aux.TableCellRenderer();
+		this.cellRenderer = new client.table.auxil.TableCellRenderer();
 	}
 
 	/**
